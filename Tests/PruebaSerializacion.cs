@@ -11,7 +11,7 @@ namespace Tests
             Console.WriteLine("=== Prueba: Serializacion/Deserializacion ===");
 
             // Mensaje con DatosConectar
-            Mensaje original = new Mensaje(TipoMensaje.CONECTAR, new DatosConectar { Nombre = "Cristopher" });
+            Mensaje original = new Mensaje(TipoMensaje.CONECTAR, new DatosConectar { Nombre = "Cristopher"});
             string json = original.Serializar();
             Console.WriteLine("JSON: " + json);
 

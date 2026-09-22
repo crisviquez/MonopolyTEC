@@ -1,0 +1,8 @@
+<Solution>
+  <Project Path="Client/Client.csproj" />
+  <Project Path="Core/Core.csproj" />
+  <Project Path="DataStructures/DataStructures.csproj" />
+  <Project Path="Network/Network.csproj" />
+  <Project Path="Server/Server.csproj" />
+  <Project Path="Tests/Tests.csproj" />
+</Solution>
