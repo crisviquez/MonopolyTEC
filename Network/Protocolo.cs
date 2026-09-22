@@ -49,7 +49,7 @@ namespace Network
         // Convierte un JSON devuelta a un objeto Mensaje
         public static Mensaje? Deserializar(string json) 
         {
-            JsonSerializer.Deserialize<Mensaje>(json);
+            return JsonSerializer.Deserialize<Mensaje>(json);
         }
 
         // Extrae contenido de Datos y lo convierte a la clase/tipo (T)

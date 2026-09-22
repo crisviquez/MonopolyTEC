@@ -10,7 +10,7 @@ namespace Network
         private TcpClient socket = new TcpClient();
         private NetworkStream? stream;
         private bool activo;
-
+ 
         // Eventos para avisar cuando llega un mensaje o se corta la conexión
         public event Action<Mensaje>? MensajeRecibido;
         public event Action? Desconectado;
