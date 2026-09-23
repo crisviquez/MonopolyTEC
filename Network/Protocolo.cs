@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 
 namespace Network
@@ -27,12 +26,12 @@ namespace Network
 
     public class Mensaje
     {
-        public TipoMensaje Tipo {get; set;}
-        public object? Datos {get; set;}
+        public TipoMensaje Tipo { get; set; }
+        public object? Datos { get; set; }
 
         public Mensaje()
         {
-            // Contructor vacio para q se pueda deserializar
+            // Constructor vacio para que se pueda deserializar
         }
 
         public Mensaje(TipoMensaje tipo, object? datos = null)
@@ -47,13 +46,13 @@ namespace Network
             return JsonSerializer.Serialize(this);
         }
 
-        // Convierte un JSON devuelta a un objeto Mensaje
-        public static Mensaje? Deserializar(string json) 
+        // Convierte un JSON de vuelta a un objeto Mensaje
+        public static Mensaje? Deserializar(string json)
         {
             return JsonSerializer.Deserialize<Mensaje>(json);
         }
 
-        // Extrae contenido de Datos y lo convierte a la clase/tipo (T)
+        // Extrae el contenido de Datos y lo convierte al tipo (T) que se pida
         public T LeerDatos<T>()
         {
             if (Datos == null)
@@ -66,10 +65,10 @@ namespace Network
         }
     }
 
-    // -- Payloads Cliente -> Servidro --
+    // -- Payloads Cliente -> Servidor --
     public class DatosConectar
     {
-        public string Nombre {get; set;} = "";
+        public string Nombre { get; set; } = "";
     }
 
     // -- Payloads Servidor -> Cliente --
@@ -81,7 +80,6 @@ namespace Network
         public int Saldo { get; set; }
         public List<int> Propiedades { get; set; } = new List<int>();
         public bool EnBancarrota { get; set; }
-        // Agergar mas si es necesario
     }
 
     public class DatosConexionAceptada
