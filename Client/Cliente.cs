@@ -9,19 +9,24 @@ namespace Client
     {
         private ClienteTcp red;
         private ListaSimple<JugadorEstado> jugadores;
+        private ListaSimple<TransaccionInfo> historial;
         private int idPropio;
         private int turnoActualId;
+        private int numeroCasillas;
 
         public event Action<string> OnEvento;
         public event Action OnEstadoActualizado;
         public event Action<string> OnError;
+        public event Action<DatosOfertaCompra> OnOfertaCompra;
 
         public Cliente()
         {
             red = new ClienteTcp();
             jugadores = new ListaSimple<JugadorEstado>();
+            historial = new ListaSimple<TransaccionInfo>();
             idPropio = 0;
             turnoActualId = 0;
+            numeroCasillas = 24; // valor por defecto mientras el servidor no confirme el real
         }
 
         public bool EsMiTurno()
@@ -38,9 +43,19 @@ namespace Client
             return jugadores;
         }
 
+        public ListaSimple<TransaccionInfo> ObtenerHistorial()
+        {
+            return historial;
+        }
+
         public int ObtenerIdPropio()
         {
             return idPropio;
+        }
+
+        public int ObtenerNumeroCasillas()
+        {
+            return numeroCasillas;
         }
 
         public bool Conectar(string ip, int puerto, string nombre)
@@ -68,6 +83,10 @@ namespace Client
             {
                 DatosConexionAceptada datos = mensaje.LeerDatos<DatosConexionAceptada>();
                 idPropio = datos.IdJugador;
+                if (datos.NumeroCasillas > 0)
+                {
+                    numeroCasillas = datos.NumeroCasillas;
+                }
                 ActualizarJugadores(datos.Jugadores);
             }
             else if (mensaje.Tipo == TipoMensaje.CONEXION_RECHAZADA)
@@ -100,6 +119,19 @@ namespace Client
                 {
                     OnEvento(texto);
                 }
+            }
+            else if (mensaje.Tipo == TipoMensaje.OFERTA_COMPRA)
+            {
+                DatosOfertaCompra datos = mensaje.LeerDatos<DatosOfertaCompra>();
+                if (OnOfertaCompra != null)
+                {
+                    OnOfertaCompra(datos);
+                }
+            }
+            else if (mensaje.Tipo == TipoMensaje.HISTORIAL_TRANSACCIONES)
+            {
+                DatosHistorialTransacciones datos = mensaje.LeerDatos<DatosHistorialTransacciones>();
+                ActualizarHistorial(datos.Transacciones);
             }
             else if (mensaje.Tipo == TipoMensaje.EVENTO)
             {
@@ -157,6 +189,16 @@ namespace Client
             }
         }
 
+        // Reemplaza el historial local con la lista recibida del servidor
+        private void ActualizarHistorial(List<TransaccionInfo> listaNueva)
+        {
+            historial = new ListaSimple<TransaccionInfo>();
+            for (int i = 0; i < listaNueva.Count; i++)
+            {
+                historial.Agregar(listaNueva[i]);
+            }
+        }
+
         // Busca un jugador por Id recorriendo la lista uno por uno
         private JugadorEstado BuscarJugador(int id)
         {
@@ -182,6 +224,12 @@ namespace Client
             red.Enviar(mensaje);
         }
 
+        public void NoComprar()
+        {
+            Mensaje mensaje = new Mensaje(TipoMensaje.NO_COMPRAR);
+            red.Enviar(mensaje);
+        }
+
         public void PagarDeuda()
         {
             Mensaje mensaje = new Mensaje(TipoMensaje.PAGAR_DEUDA);
@@ -191,6 +239,12 @@ namespace Client
         public void TerminarTurno()
         {
             Mensaje mensaje = new Mensaje(TipoMensaje.TERMINAR_TURNO);
+            red.Enviar(mensaje);
+        }
+
+        public void ConsultarHistorial()
+        {
+            Mensaje mensaje = new Mensaje(TipoMensaje.CONSULTAR_TRANSACCIONES);
             red.Enviar(mensaje);
         }
 
