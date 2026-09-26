@@ -27,6 +27,7 @@ namespace Client
             cliente.OnError += MostrarError;
             cliente.OnEvento += MostrarEvento;
             cliente.OnEstadoActualizado += MostrarTablero;
+            cliente.OnOfertaCompra += ManejarOfertaCompra;
 
             bool conectado = cliente.Conectar(ip, 5000, nombre);
             if (conectado == false)
@@ -41,7 +42,7 @@ namespace Client
                 if (cliente.EsMiTurno())
                 {
                     Console.WriteLine("");
-                    Console.WriteLine("[1] Tirar dado  [2] Comprar  [3] Pagar deuda  [4] Terminar turno  [0] Salir");
+                    Console.WriteLine("[1] Tirar dado  [2] Comprar  [3] Pagar deuda  [4] Terminar turno  [5] Ver historial  [0] Salir");
                     string opcion = Console.ReadLine();
 
                     if (opcion == "1")
@@ -59,6 +60,10 @@ namespace Client
                     else if (opcion == "4")
                     {
                         cliente.TerminarTurno();
+                    }
+                    else if (opcion == "5")
+                    {
+                        MostrarHistorial();
                     }
                     else if (opcion == "0")
                     {
@@ -83,11 +88,48 @@ namespace Client
             Console.WriteLine("[EVENTO] " + mensaje);
         }
 
+        // Se dispara cuando el servidor avisa que hay una propiedad libre para comprar
+        static void ManejarOfertaCompra(DatosOfertaCompra datos)
+        {
+            Console.WriteLine("");
+            Console.WriteLine("Casilla " + datos.IdCasilla + ": " + datos.NombrePropiedad + " - Precio: " + datos.Precio);
+            Console.Write("Deseas comprarla? (s/n): ");
+            string respuesta = Console.ReadLine();
+
+            if (respuesta == "s" || respuesta == "S")
+            {
+                cliente.ComprarPropiedad();
+            }
+            else
+            {
+                cliente.NoComprar();
+            }
+        }
+
+        static void MostrarHistorial()
+        {
+            cliente.ConsultarHistorial();
+            Thread.Sleep(300); // no hay confirmacion de llegada; se espera un poco a que llegue la respuesta
+
+            Console.WriteLine("");
+            Console.WriteLine("=== Historial de transacciones ===");
+
+            foreach (TransaccionInfo t in cliente.ObtenerHistorial())
+            {
+                Console.WriteLine(t.Id + " | Turno " + t.Turno + " | " + t.Tipo + " | " + t.JugadorOrigen + " -> " + t.JugadorDestino + " | " + t.Monto + " | " + t.Descripcion);
+            }
+
+            Console.WriteLine("");
+        }
+
         static void MostrarTablero()
         {
             Console.Clear();
             Console.WriteLine("=== MONOPOLY TEC ===");
-            // TODO: recorrer el Tablero de Core (ListaCircularDoble<Casilla>) para dibujar el tablero completo.
+            Console.WriteLine("");
+
+            DibujarTablero();
+            Console.WriteLine("");
 
             foreach (JugadorEstado j in cliente.ObtenerJugadores())
             {
@@ -98,6 +140,44 @@ namespace Client
                 }
                 Console.WriteLine(j.Nombre + marca + " - Casilla " + j.Posicion + " - " + j.Saldo);
             }
+        }
+
+        // Dibuja una fila de casillas numeradas con la inicial del jugador que este ahi
+        static void DibujarTablero()
+        {
+            int total = cliente.ObtenerNumeroCasillas();
+
+            for (int i = 0; i < total; i++)
+            {
+                string casillaTexto = "[" + i;
+
+                foreach (JugadorEstado j in cliente.ObtenerJugadores())
+                {
+                    if (j.Posicion == i)
+                    {
+                        string inicial = "?";
+                        if (j.Nombre.Length > 0)
+                        {
+                            inicial = j.Nombre.Substring(0, 1);
+                        }
+                        casillaTexto = casillaTexto + inicial;
+                    }
+                }
+
+                casillaTexto = casillaTexto + "]";
+                Console.Write(casillaTexto + " ");
+
+                bool finDeFila = false;
+                if ((i + 1) % 8 == 0)
+                {
+                    finDeFila = true;
+                }
+                if (finDeFila == true)
+                {
+                    Console.WriteLine();
+                }
+            }
+            Console.WriteLine();
         }
     }
 }
