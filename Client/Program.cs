@@ -11,14 +11,14 @@ namespace Client
         static void Main(string[] args)
         {
             Console.Write("IP del servidor: ");
-            string ip = Console.ReadLine();
+            string? ip = Console.ReadLine();
             if (string.IsNullOrEmpty(ip))
             {
                 ip = "127.0.0.1";
             }
 
             Console.Write("Nombre: ");
-            string nombre = Console.ReadLine();
+            string? nombre = Console.ReadLine();
             if (string.IsNullOrEmpty(nombre))
             {
                 nombre = "Jugador";
@@ -43,7 +43,7 @@ namespace Client
                 {
                     Console.WriteLine("");
                     Console.WriteLine("[1] Tirar dado  [2] Comprar  [3] Pagar deuda  [4] Terminar turno  [5] Ver historial  [0] Salir");
-                    string opcion = Console.ReadLine();
+                    string? opcion = Console.ReadLine();
 
                     if (opcion == "1")
                     {
@@ -94,7 +94,7 @@ namespace Client
             Console.WriteLine("");
             Console.WriteLine("Casilla " + datos.IdCasilla + ": " + datos.NombrePropiedad + " - Precio: " + datos.Precio);
             Console.Write("Deseas comprarla? (s/n): ");
-            string respuesta = Console.ReadLine();
+            string? respuesta = Console.ReadLine();
 
             if (respuesta == "s" || respuesta == "S")
             {

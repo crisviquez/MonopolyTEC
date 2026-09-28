@@ -8,7 +8,7 @@ public class CasillaEspecial : Casilla
         Tipo = tipo;
     }
 
-    public override void Ejecutar()
+    public override void Ejecutar(Jugador jugador, Juego juego)
     {
         Console.WriteLine("Casilla especial: " + Nombre);
         Console.WriteLine("Tipo: " + Tipo);

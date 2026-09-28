@@ -1,19 +1,6 @@
-public abstract class Casilla
-{
-    public int Id { get; set; }
-    public string Nombre { get; set; }
-
-    public Casilla(int id, string nombre)
-    {
-        Id = id;
-        Nombre = nombre;
-    }
-
-    public abstract void Ejecutar(Jugador jugador, Juego juego);
-}
 public class CasillaEvento : Casilla
 {
-    private CartaEvento carta;
+    private CartaEvento? carta;
 
     public CasillaEvento(int id, string nombre)
         : base(id, nombre)
@@ -26,12 +13,12 @@ public class CasillaEvento : Casilla
         carta = nuevaCarta;
     }
 
-    public CartaEvento ObtenerCarta()
+    public CartaEvento? ObtenerCarta()
     {
         return carta;
     }
 
-    public override void Ejecutar()
+    public override void Ejecutar(Jugador jugador, Juego juego)
     {
         if (carta != null)
         {
