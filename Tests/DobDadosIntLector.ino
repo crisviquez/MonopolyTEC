@@ -1,8 +1,8 @@
 #include <SoftwareSerial.h>
 
-// ===============================
+
 // DISPLAY 1
-// ===============================
+
 
 int A = 13;
 int B = 12;
@@ -13,9 +13,9 @@ int F = 8;
 int G = 7;
 
 
-// ===============================
+
 // DISPLAY 2
-// ===============================
+
 
 int AA = A3;
 int BB = A4;
@@ -26,19 +26,16 @@ int FF = 4;
 int GG = 5;
 
 
-// ===============================
+
 // BOTON
-// ===============================
+
 
 int boton = 6;
 
 
-// ===============================
-// RFID RDM6300
-// ===============================
 
-// TX del RDM6300 -> D2
-// D3 no se conecta físicamente al RDM6300
+// RFID RDM6300
+
 
 SoftwareSerial RFID(2, 3);
 
@@ -48,9 +45,7 @@ int posicion = 0;
 bool tarjetaDetectada = false;
 
 
-// ===============================
-// SETUP
-// ===============================
+
 
 void setup() {
 
@@ -91,9 +86,9 @@ void setup() {
 }
 
 
-// ===============================
+
 // MOSTRAR NUMERO DISPLAY 1
-// ===============================
+
 
 void mostrarNumero(int numero) {
 
@@ -118,9 +113,9 @@ void mostrarNumero(int numero) {
 }
 
 
-// ===============================
+
 // MOSTRAR NUMERO DISPLAY 2
-// ===============================
+
 
 void mostrarNumero2(int numero) {
 
@@ -145,9 +140,8 @@ void mostrarNumero2(int numero) {
 }
 
 
-// ===============================
 // LEER RFID
-// ===============================
+
 
 void leerRFID() {
 
@@ -155,7 +149,7 @@ void leerRFID() {
 
     byte dato = RFID.read();
 
-    // Inicio de la trama
+
     if (dato == 0x02) {
 
       posicion = 0;
@@ -163,19 +157,19 @@ void leerRFID() {
       buffer[posicion++] = dato;
     }
 
-    // Guardar datos
+ 
     else if (posicion > 0 && posicion < 14) {
 
       buffer[posicion++] = dato;
 
-      // Fin de la trama
+   
       if (dato == 0x03) {
 
         if (!tarjetaDetectada) {
 
           Serial.print("ID: ");
 
-          // Mostrar los 10 caracteres del ID
+         
           for (int i = 1; i <= 10; i++) {
 
             Serial.write(buffer[i]);
@@ -194,16 +188,15 @@ void leerRFID() {
 }
 
 
-// ===============================
+
 // LOOP
-// ===============================
+
 
 void loop() {
 
-  // ============================
+ 
   // DADOS
-  // ============================
-
+  
   if (digitalRead(boton) == LOW) {
 
     int resultado1 = random(1, 7);
@@ -231,16 +224,16 @@ void loop() {
   }
 
 
-  // ============================
+  
   // RFID
-  // ============================
+  
 
   leerRFID();
 
 
-  // ============================
+  
   // PERMITIR NUEVA TARJETA
-  // ============================
+  
 
   static unsigned long ultimaLectura = 0;
 
