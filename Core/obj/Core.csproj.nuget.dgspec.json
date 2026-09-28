@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\630206\\Documents\\MonopolyTEC\\Core\\Core.csproj": {}
+    "C:\\Users\\Kevin José\\OneDrive\\Documentos\\Datos1\\Proyecto1\\MonopolyTEC\\Core\\Core.csproj": {}
   },
   "projects": {
-    "C:\\Users\\630206\\Documents\\MonopolyTEC\\Core\\Core.csproj": {
+    "C:\\Users\\Kevin José\\OneDrive\\Documentos\\Datos1\\Proyecto1\\MonopolyTEC\\Core\\Core.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\630206\\Documents\\MonopolyTEC\\Core\\Core.csproj",
+        "projectUniqueName": "C:\\Users\\Kevin José\\OneDrive\\Documentos\\Datos1\\Proyecto1\\MonopolyTEC\\Core\\Core.csproj",
         "projectName": "Core",
-        "projectPath": "C:\\Users\\630206\\Documents\\MonopolyTEC\\Core\\Core.csproj",
-        "packagesPath": "C:\\Users\\630206\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\630206\\Documents\\MonopolyTEC\\Core\\obj\\",
+        "projectPath": "C:\\Users\\Kevin José\\OneDrive\\Documentos\\Datos1\\Proyecto1\\MonopolyTEC\\Core\\Core.csproj",
+        "packagesPath": "C:\\Users\\Kevin José\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Kevin José\\OneDrive\\Documentos\\Datos1\\Proyecto1\\MonopolyTEC\\Core\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\630206\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\Kevin José\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
@@ -27,8 +27,8 @@
             "framework": "net10.0",
             "targetAlias": "net10.0",
             "projectReferences": {
-              "C:\\Users\\630206\\Documents\\MonopolyTEC\\DataStructures\\DataStructures.csproj": {
-                "projectPath": "C:\\Users\\630206\\Documents\\MonopolyTEC\\DataStructures\\DataStructures.csproj"
+              "C:\\Users\\Kevin José\\OneDrive\\Documentos\\Datos1\\Proyecto1\\MonopolyTEC\\DataStructures\\DataStructures.csproj": {
+                "projectPath": "C:\\Users\\Kevin José\\OneDrive\\Documentos\\Datos1\\Proyecto1\\MonopolyTEC\\DataStructures\\DataStructures.csproj"
               }
             }
           }
@@ -43,7 +43,7 @@
           "auditLevel": "low",
           "auditMode": "all"
         },
-        "SdkAnalysisLevel": "10.0.300"
+        "SdkAnalysisLevel": "10.0.400"
       },
       "frameworks": {
         "net10.0": {
@@ -65,7 +65,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.302/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.401/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",
@@ -343,17 +343,17 @@
         }
       }
     },
-    "C:\\Users\\630206\\Documents\\MonopolyTEC\\DataStructures\\DataStructures.csproj": {
+    "C:\\Users\\Kevin José\\OneDrive\\Documentos\\Datos1\\Proyecto1\\MonopolyTEC\\DataStructures\\DataStructures.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\630206\\Documents\\MonopolyTEC\\DataStructures\\DataStructures.csproj",
+        "projectUniqueName": "C:\\Users\\Kevin José\\OneDrive\\Documentos\\Datos1\\Proyecto1\\MonopolyTEC\\DataStructures\\DataStructures.csproj",
         "projectName": "DataStructures",
-        "projectPath": "C:\\Users\\630206\\Documents\\MonopolyTEC\\DataStructures\\DataStructures.csproj",
-        "packagesPath": "C:\\Users\\630206\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\630206\\Documents\\MonopolyTEC\\DataStructures\\obj\\",
+        "projectPath": "C:\\Users\\Kevin José\\OneDrive\\Documentos\\Datos1\\Proyecto1\\MonopolyTEC\\DataStructures\\DataStructures.csproj",
+        "packagesPath": "C:\\Users\\Kevin José\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\Kevin José\\OneDrive\\Documentos\\Datos1\\Proyecto1\\MonopolyTEC\\DataStructures\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Users\\630206\\AppData\\Roaming\\NuGet\\NuGet.Config"
+          "C:\\Users\\Kevin José\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net10.0"
@@ -378,7 +378,7 @@
           "auditLevel": "low",
           "auditMode": "all"
         },
-        "SdkAnalysisLevel": "10.0.300"
+        "SdkAnalysisLevel": "10.0.400"
       },
       "frameworks": {
         "net10.0": {
@@ -400,7 +400,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.302/PortableRuntimeIdentifierGraph.json",
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\10.0.401/PortableRuntimeIdentifierGraph.json",
           "packagesToPrune": {
             "Microsoft.CSharp": "(,4.7.32767]",
             "Microsoft.VisualBasic": "(,10.4.32767]",
