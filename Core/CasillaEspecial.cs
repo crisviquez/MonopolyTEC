@@ -10,7 +10,13 @@ public class CasillaEspecial : Casilla
 
     public override void Ejecutar(Jugador jugador, Juego juego)
     {
-        Console.WriteLine("Casilla especial: " + Nombre);
-        Console.WriteLine("Tipo: " + Tipo);
+        if (Tipo == "IMPUESTO")
+        {
+            juego.CobrarImpuesto(jugador, this);
+        }
+        else
+        {
+            juego.AgregarEvento(jugador.Nombre + " descansa en " + Nombre);
+        }
     }
 }
