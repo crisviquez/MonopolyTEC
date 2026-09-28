@@ -1,8 +1,18 @@
 {
   "version": 2,
-  "dgSpecHash": "+iMDPao5nbo=",
+  "dgSpecHash": "a9VZwyGRn9U=",
   "success": true,
   "projectFilePath": "C:\\Users\\630206\\Documents\\MonopolyTEC\\Tests\\Tests.csproj",
   "expectedPackageFiles": [],
-  "logs": []
+  "logs": [
+    {
+      "code": "Undefined",
+      "level": "Warning",
+      "message": "Problem reading the cache file C:\\Users\\630206\\Documents\\MonopolyTEC\\Tests\\obj\\project.nuget.cache : '<' is an invalid start of a property name. Expected a '\"'. Path: $ | LineNumber: 2 | BytePositionInLine: 0.",
+      "projectPath": "C:\\Users\\630206\\Documents\\MonopolyTEC\\Tests\\Tests.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\630206\\Documents\\MonopolyTEC\\Tests\\Tests.csproj",
+      "targetGraphs": []
+    }
+  ]
 }

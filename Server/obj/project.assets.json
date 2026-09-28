@@ -2,6 +2,19 @@
   "version": 4,
   "targets": {
     "net10.0": {
+      "Core/1.0.0": {
+        "type": "project",
+        "framework": ".NETCoreApp,Version=v10.0",
+        "dependencies": {
+          "DataStructures": "1.0.0"
+        },
+        "compile": {
+          "bin/placeholder/Core.dll": {}
+        },
+        "runtime": {
+          "bin/placeholder/Core.dll": {}
+        }
+      },
       "DataStructures/1.0.0": {
         "type": "project",
         "framework": ".NETCoreApp,Version=v10.0",
@@ -25,6 +38,11 @@
     }
   },
   "libraries": {
+    "Core/1.0.0": {
+      "type": "project",
+      "path": "../Core/Core.csproj",
+      "msbuildProject": "../Core/Core.csproj"
+    },
     "DataStructures/1.0.0": {
       "type": "project",
       "path": "../DataStructures/DataStructures.csproj",
@@ -38,6 +56,7 @@
   },
   "projectFileDependencyGroups": {
     "net10.0": [
+      "Core >= 1.0.0",
       "DataStructures >= 1.0.0",
       "Network >= 1.0.0"
     ]
@@ -68,6 +87,9 @@
           "framework": "net10.0",
           "targetAlias": "net10.0",
           "projectReferences": {
+            "C:\\Users\\630206\\Documents\\MonopolyTEC\\Core\\Core.csproj": {
+              "projectPath": "C:\\Users\\630206\\Documents\\MonopolyTEC\\Core\\Core.csproj"
+            },
             "C:\\Users\\630206\\Documents\\MonopolyTEC\\DataStructures\\DataStructures.csproj": {
               "projectPath": "C:\\Users\\630206\\Documents\\MonopolyTEC\\DataStructures\\DataStructures.csproj"
             },
@@ -386,5 +408,13 @@
         }
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "Undefined",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Problem reading the cache file C:\\Users\\630206\\Documents\\MonopolyTEC\\Server\\obj\\project.nuget.cache : '<' is an invalid start of a property name. Expected a '\"'. Path: $ | LineNumber: 2 | BytePositionInLine: 0."
+    }
+  ]
 }

@@ -18,15 +18,9 @@ public class CasillaEvento : Casilla
         return carta;
     }
 
+    // La carta la saca el Juego del mazo (cola circular) y la aplica el servidor
     public override void Ejecutar(Jugador jugador, Juego juego)
     {
-        if (carta != null)
-        {
-            carta.Ejecutar();
-        }
-        else
-        {
-            Console.WriteLine("No hay una carta disponible.");
-        }
+        juego.EjecutarCartaEvento(jugador);
     }
 }
