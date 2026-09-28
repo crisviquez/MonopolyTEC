@@ -14,10 +14,10 @@ namespace Client
         private int turnoActualId;
         private int numeroCasillas;
 
-        public event Action<string> OnEvento;
-        public event Action OnEstadoActualizado;
-        public event Action<string> OnError;
-        public event Action<DatosOfertaCompra> OnOfertaCompra;
+        public event Action<string>? OnEvento;
+        public event Action? OnEstadoActualizado;
+        public event Action<string>? OnError;
+        public event Action<DatosOfertaCompra>? OnOfertaCompra;
 
         public Cliente()
         {
@@ -200,7 +200,7 @@ namespace Client
         }
 
         // Busca un jugador por Id recorriendo la lista uno por uno
-        private JugadorEstado BuscarJugador(int id)
+        private JugadorEstado? BuscarJugador(int id)
         {
             foreach (JugadorEstado j in jugadores)
             {
