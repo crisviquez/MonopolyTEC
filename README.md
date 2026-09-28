@@ -1,3 +1,3 @@
 # MonopolyTEC
 
-Version 0.05
+Version 1.67
