@@ -666,3 +666,84 @@ Datos específicos
 ```
 
 De esta forma, cliente y servidor comparten un protocolo común, estructurado y predecible para comunicarse durante la partida.
+
+## 17. Extensiones agregadas (historial y oferta de compra)
+
+Estos mensajes se agregaron para cubrir dos partes del enunciado que faltaban en el protocolo original: la consulta del historial de transacciones y la decisión explícita de comprar o no una propiedad.
+
+### Cliente → Servidor
+
+| Tipo | Descripción |
+|---|---|
+| `NO_COMPRAR` | El jugador decide no comprar la propiedad ofrecida. |
+| `CONSULTAR_TRANSACCIONES` | Solicita el historial completo de transacciones de la partida. |
+
+### Servidor → Cliente
+
+| Tipo | Descripción |
+|---|---|
+| `OFERTA_COMPRA` | Avisa que el jugador cayó en una propiedad libre y puede comprarla. |
+| `HISTORIAL_TRANSACCIONES` | Envía el historial de transacciones solicitado. |
+
+### `OFERTA_COMPRA`
+
+Utiliza `DatosOfertaCompra`:
+
+```csharp
+public class DatosOfertaCompra
+{
+    public int IdCasilla { get; set; }
+    public string NombrePropiedad { get; set; } = "";
+    public int Precio { get; set; }
+}
+```
+
+Ejemplo:
+
+```json
+{
+    "Tipo": "OFERTA_COMPRA",
+    "Datos": {
+        "IdCasilla": 12,
+        "NombrePropiedad": "Avenida Central",
+        "Precio": 200
+    }
+}
+```
+
+El cliente responde con `COMPRAR_PROPIEDAD` o `NO_COMPRAR` según lo que decida el jugador.
+
+### `HISTORIAL_TRANSACCIONES`
+
+Utiliza `DatosHistorialTransacciones`, que contiene una lista de `TransaccionInfo`:
+
+```csharp
+public class TransaccionInfo
+{
+    public int Id { get; set; }
+    public string FechaHora { get; set; } = "";
+    public int Turno { get; set; }
+    public string Tipo { get; set; } = "";
+    public string JugadorOrigen { get; set; } = "";
+    public string JugadorDestino { get; set; } = "";
+    public int Monto { get; set; }
+    public string Descripcion { get; set; } = "";
+}
+```
+
+`TransaccionInfo` es solo el formato de red (DTO); no es la clase `Transaccion` que use el servidor internamente, que puede tener su propia representación mientras al enviarla la convierta a este formato.
+
+### Cambio en `CONEXION_ACEPTADA`
+
+Se agregó el campo `NumeroCasillas` a `DatosConexionAceptada`, para que el cliente sepa el tamaño real del tablero sin tener que asumirlo:
+
+```csharp
+public class DatosConexionAceptada
+{
+    public int IdJugador { get; set; }
+    public int NumeroCasillas { get; set; }
+    public List<JugadorEstado> Jugadores { get; set; } = new List<JugadorEstado>();
+}
+```
+
+Si el servidor no lo envía (o envía 0), el cliente usa 24 como valor por defecto.
