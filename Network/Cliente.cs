@@ -45,7 +45,14 @@ namespace Network
             string textoSerializado = mensaje.Serializar() + "\n";
             byte[] bytes = Encoding.UTF8.GetBytes(textoSerializado);
 
-            stream.Write(bytes, 0, bytes.Length);
+            try
+            {
+                stream.Write(bytes, 0, bytes.Length);
+            }
+            catch (Exception)
+            {
+                activo = false;
+            }
         }
 
         private void EscucharServidor()

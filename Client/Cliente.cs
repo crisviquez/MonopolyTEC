@@ -13,6 +13,7 @@ namespace Client
         private int idPropio;
         private int turnoActualId;
         private int numeroCasillas;
+        private bool conectadoAlServidor;
 
         public event Action<string>? OnEvento;
         public event Action? OnEstadoActualizado;
@@ -27,10 +28,16 @@ namespace Client
             idPropio = 0;
             turnoActualId = 0;
             numeroCasillas = 24; // valor por defecto mientras el servidor no confirme el real
+            conectadoAlServidor = false;
         }
 
         public bool EsMiTurno()
         {
+
+            if (idPropio == 0)
+            {
+                return false;
+            }
             if (turnoActualId == idPropio)
             {
                 return true;
@@ -58,15 +65,35 @@ namespace Client
             return numeroCasillas;
         }
 
+        public bool EstaConectado()
+        {
+            return conectadoAlServidor;
+        }
+
+        private void ManejarDesconexion()
+        {
+            if (conectadoAlServidor == true)
+            {
+                conectadoAlServidor = false;
+                if (OnError != null)
+                {
+                    OnError("Se perdio la conexion con el servidor");
+                }
+    }
+}
+
         public bool Conectar(string ip, int puerto, string nombre)
         {
             red.MensajeRecibido += ManejarMensaje;
+            red.Desconectado += ManejarDesconexion;
 
-            bool conectado = red.Conectar(ip, puerto);
-            if (conectado == false)
+            bool exito = red.Conectar(ip, puerto);
+            if (exito == false)
             {
                 return false;
             }
+
+            conectadoAlServidor = true;
 
             DatosConectar datos = new DatosConectar();
             datos.Nombre = nombre;
@@ -164,23 +191,10 @@ namespace Client
         // nuestra copia local (guardada en la estructura ListaSimple)
         private void ActualizarJugadores(List<JugadorEstado> listaNueva)
         {
+            jugadores = new ListaSimple<JugadorEstado>();
             for (int i = 0; i < listaNueva.Count; i++)
             {
-                JugadorEstado nuevo = listaNueva[i];
-                JugadorEstado existente = BuscarJugador(nuevo.Id);
-
-                if (existente != null)
-                {
-                    existente.Nombre = nuevo.Nombre;
-                    existente.Posicion = nuevo.Posicion;
-                    existente.Saldo = nuevo.Saldo;
-                    existente.Propiedades = nuevo.Propiedades;
-                    existente.EnBancarrota = nuevo.EnBancarrota;
-                }
-                else
-                {
-                    jugadores.Agregar(nuevo);
-                }
+                jugadores.Agregar(listaNueva[i]);
             }
 
             if (OnEstadoActualizado != null)
@@ -250,6 +264,7 @@ namespace Client
 
         public void Desconectar()
         {
+            conectadoAlServidor = false;
             Mensaje mensaje = new Mensaje(TipoMensaje.DESCONECTAR);
             red.Enviar(mensaje);
             red.Cerrar();

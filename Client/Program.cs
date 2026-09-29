@@ -39,10 +39,16 @@ namespace Client
             bool jugando = true;
             while (jugando)
             {
+                if (cliente.EstaConectado() == false)
+                {
+                    Console.WriteLine("Desconectado del servidor.");
+                    jugando = false;
+                    continue;
+                }
                 if (cliente.EsMiTurno())
                 {
                     Console.WriteLine("");
-                    Console.WriteLine("[1] Tirar dado  [2] Comprar  [3] Pagar deuda  [4] Terminar turno  [5] Ver historial  [0] Salir");
+                    Console.WriteLine("[1] Tirar dado  [2] Comprar  [3] Pagar deuda  [4] Terminar turno  [5] Ver historial  [6] No comprar  [0] Salir");
                     string? opcion = Console.ReadLine();
 
                     if (opcion == "1")
@@ -64,6 +70,10 @@ namespace Client
                     else if (opcion == "5")
                     {
                         MostrarHistorial();
+                    }
+                    else if (opcion == "6")
+                    {
+                        cliente.NoComprar();
                     }
                     else if (opcion == "0")
                     {
@@ -93,17 +103,7 @@ namespace Client
         {
             Console.WriteLine("");
             Console.WriteLine("Casilla " + datos.IdCasilla + ": " + datos.NombrePropiedad + " - Precio: " + datos.Precio);
-            Console.Write("Deseas comprarla? (s/n): ");
-            string? respuesta = Console.ReadLine();
-
-            if (respuesta == "s" || respuesta == "S")
-            {
-                cliente.ComprarPropiedad();
-            }
-            else
-            {
-                cliente.NoComprar();
-            }
+            Console.WriteLine("Elige [2] Comprar o [6] No comprar");
         }
 
         static void MostrarHistorial()
