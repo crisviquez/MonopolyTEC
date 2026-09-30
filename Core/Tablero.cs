@@ -25,19 +25,19 @@ public class Tablero
     {
         if (id == 0)
         {
-            return new CasillaEspecial(id, "Inicio", "INICIO");
+            return new CasillaEspecial(id, "Inicio");
         }
         if (id == 6)
         {
-            return new CasillaEspecial(id, "Carcel (solo visita)", "CARCEL");
+            return new CasillaEspecial(id, "Carcel (solo visita)");
         }
         if (id == 12)
         {
-            return new CasillaEspecial(id, "Parqueo libre", "PARQUEO");
+            return new CasillaEspecial(id, "Parqueo libre");
         }
         if (id == 18)
         {
-            return new CasillaEspecial(id, "Impuesto", "IMPUESTO");
+            return new CasillaImpuesto(id, "Impuesto");
         }
         if (id % 6 == 3)
         {

@@ -1,14 +1,21 @@
 public class Dado
 {
-    private Random random;
+    public int Valor { get; private set; }
 
     public Dado()
     {
-        random = new Random();
+        Valor = 0;
     }
 
-    public int Lanzar()
+    // El dado es fisico: el valor llega del modulo y aqui solo se valida
+    public bool AsignarValor(int valor)
     {
-        return random.Next(1, 7);
+        if (valor < 1 || valor > 6)
+        {
+            return false;
+        }
+
+        Valor = valor;
+        return true;
     }
 }

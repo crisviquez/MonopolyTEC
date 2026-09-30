@@ -8,6 +8,7 @@ public class Jugador
     public int Saldo { get; set; }
     public bool EnBancarrota { get; set; }
     public int TurnosPorPerder { get; set; }
+    public string IdTarjeta { get; set; }
     public ListaSimple<Propiedad> Propiedades { get; set; }
 
     public Jugador(int id, string nombre, int saldo)
@@ -18,6 +19,7 @@ public class Jugador
         Saldo = saldo;
         EnBancarrota = false;
         TurnosPorPerder = 0;
+        IdTarjeta = "";
         Propiedades = new ListaSimple<Propiedad>();
     }
 }

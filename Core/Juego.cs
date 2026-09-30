@@ -12,7 +12,8 @@ public class Juego
 
     private Tablero tablero;
     private Banco banco;
-    private Dado dado;
+    private Dado dado1;
+    private Dado dado2;
     private ListaSimple<Jugador> jugadores;
     private ColaCircular<Jugador> turnos;
     private ColaCircular<CartaEvento> mazo;
@@ -26,8 +27,6 @@ public class Juego
     private int idGanador;
     private bool dadosLanzados;
     private bool resolviendoCarta;
-    private int ultimoDado1;
-    private int ultimoDado2;
     private Propiedad? ofertaPendiente;
     private DeudaPendiente? deudaPendiente;
 
@@ -48,7 +47,8 @@ public class Juego
 
         tablero = new Tablero(numeroCasillas);
         banco = new Banco();
-        dado = new Dado();
+        dado1 = new Dado();
+        dado2 = new Dado();
         jugadores = new ListaSimple<Jugador>();
         turnos = new ColaCircular<Jugador>();
         mazo = CrearMazo();
@@ -61,8 +61,6 @@ public class Juego
         idGanador = 0;
         dadosLanzados = false;
         resolviendoCarta = false;
-        ultimoDado1 = 0;
-        ultimoDado2 = 0;
         ofertaPendiente = null;
         deudaPendiente = null;
     }
@@ -102,12 +100,12 @@ public class Juego
 
     public int ObtenerDado1()
     {
-        return ultimoDado1;
+        return dado1.Valor;
     }
 
     public int ObtenerDado2()
     {
-        return ultimoDado2;
+        return dado2.Valor;
     }
 
     public HistorialTransacciones ObtenerHistorial()
@@ -189,10 +187,71 @@ public class Juego
         EliminarJugador(jugador, null);
     }
 
+    // ---------- Tarjetas RFID ----------
+
+    public Jugador? BuscarJugadorPorTarjeta(string idTarjeta)
+    {
+        if (idTarjeta == "")
+        {
+            return null;
+        }
+
+        foreach (Jugador j in jugadores)
+        {
+            if (j.IdTarjeta == idTarjeta)
+            {
+                return j;
+            }
+        }
+        return null;
+    }
+
+    private Jugador? BuscarJugadorPorNombre(string nombre)
+    {
+        foreach (Jugador j in jugadores)
+        {
+            if (j.Nombre.ToLower() == nombre.Trim().ToLower())
+            {
+                return j;
+            }
+        }
+        return null;
+    }
+
+    // Asocia una tarjeta a un jugador. Solo se permite en la sala de espera
+    public string RegistrarTarjeta(string nombreJugador, string idTarjeta)
+    {
+        if (iniciado == true)
+        {
+            return "No se pueden registrar tarjetas con la partida iniciada";
+        }
+        if (idTarjeta == "")
+        {
+            return "Tarjeta invalida";
+        }
+
+        Jugador? jugador = BuscarJugadorPorNombre(nombreJugador);
+        if (jugador == null)
+        {
+            return "No existe un jugador llamado " + nombreJugador;
+        }
+
+        Jugador? dueno = BuscarJugadorPorTarjeta(idTarjeta);
+        if (dueno != null && dueno.Id != jugador.Id)
+        {
+            return "Esa tarjeta ya pertenece a " + dueno.Nombre;
+        }
+
+        jugador.IdTarjeta = idTarjeta;
+        AgregarEvento(jugador.Nombre + " registro su tarjeta RFID");
+        return "";
+    }
+
     // ---------- Acciones del jugador ----------
     // Todas devuelven "" si salieron bien, o el texto del error
 
-    public string TirarDados(Jugador jugador)
+    // Los valores vienen de los dados fisicos; aqui solo se validan
+    public string TirarDados(Jugador jugador, int valor1, int valor2)
     {
         string error = ValidarTurno(jugador);
         if (error != "")
@@ -204,10 +263,15 @@ public class Juego
             return "Ya lanzaste los dados en este turno";
         }
 
+        bool valido1 = dado1.AsignarValor(valor1);
+        bool valido2 = dado2.AsignarValor(valor2);
+        if (valido1 == false || valido2 == false)
+        {
+            return "Cada dado debe valer entre 1 y 6";
+        }
+
         dadosLanzados = true;
-        ultimoDado1 = dado.Lanzar();
-        ultimoDado2 = dado.Lanzar();
-        int total = ultimoDado1 + ultimoDado2;
+        int total = dado1.Valor + dado2.Valor;
 
         AgregarEvento(jugador.Nombre + " avanza " + total + " casillas");
         MoverJugador(jugador, total);
@@ -267,7 +331,7 @@ public class Juego
         return "";
     }
 
-    // Tambien es lo que debe llamar el lector RFID cuando el jugador acerca su tarjeta
+    // Tambien lo llama el servidor cuando el jugador acerca su tarjeta RFID
     public string PagarDeuda(Jugador jugador)
     {
         string error = ValidarTurno(jugador);
@@ -368,39 +432,35 @@ public class Juego
 
         AgregarEvento(jugador.Nombre + " saca una carta: " + carta.Descripcion);
         resolviendoCarta = true;
-
-        if (carta.TipoEvento == "RecibirDinero")
-        {
-            banco.Depositar(jugador, carta.Valor, TipoTransaccion.GANANCIA_EVENTO, carta.Descripcion, numeroTurno);
-        }
-        else if (carta.TipoEvento == "PagarDinero")
-        {
-            deudaPendiente = new DeudaPendiente(carta.Valor, null, TipoTransaccion.PERDIDA_EVENTO, carta.Descripcion);
-            AgregarEvento(jugador.Nombre + " debe pagar " + carta.Valor + " al banco");
-        }
-        else if (carta.TipoEvento == "Avanzar")
-        {
-            MoverJugador(jugador, carta.Valor);
-            EjecutarCasillaActual(jugador);
-        }
-        else if (carta.TipoEvento == "Retroceder")
-        {
-            MoverJugador(jugador, 0 - carta.Valor);
-            EjecutarCasillaActual(jugador);
-        }
-        else if (carta.TipoEvento == "PerderTurno")
-        {
-            jugador.TurnosPorPerder = jugador.TurnosPorPerder + carta.Valor;
-        }
-        else if (carta.TipoEvento == "IrACasilla")
-        {
-            int destino = carta.Valor % tablero.Cantidad;
-            jugador.Posicion = destino;
-            AgregarEvento(jugador.Nombre + " va a la casilla " + destino + " (" + tablero.ObtenerCasilla(destino).Nombre + ")");
-            EjecutarCasillaActual(jugador);
-        }
-
+        carta.Aplicar(jugador, this);
         resolviendoCarta = false;
+    }
+
+    // ---------- Metodos que llaman las cartas desde Aplicar ----------
+
+    public void DarDineroPorEvento(Jugador jugador, CartaEvento carta)
+    {
+        banco.Depositar(jugador, carta.Valor, TipoTransaccion.GANANCIA_EVENTO, carta.Descripcion, numeroTurno);
+    }
+
+    public void CobrarPorEvento(Jugador jugador, CartaEvento carta)
+    {
+        deudaPendiente = new DeudaPendiente(carta.Valor, null, TipoTransaccion.PERDIDA_EVENTO, carta.Descripcion);
+        AgregarEvento(jugador.Nombre + " debe pagar " + carta.Valor + " al banco");
+    }
+
+    public void MoverPorEvento(Jugador jugador, int pasos)
+    {
+        MoverJugador(jugador, pasos);
+        EjecutarCasillaActual(jugador);
+    }
+
+    public void IrACasillaPorEvento(Jugador jugador, int posicion)
+    {
+        int destino = posicion % tablero.Cantidad;
+        jugador.Posicion = destino;
+        AgregarEvento(jugador.Nombre + " va a la casilla " + destino + " (" + tablero.ObtenerCasilla(destino).Nombre + ")");
+        EjecutarCasillaActual(jugador);
     }
 
     // ---------- Logica interna ----------
@@ -582,12 +642,12 @@ public class Juego
     private ColaCircular<CartaEvento> CrearMazo()
     {
         ColaCircular<CartaEvento> cola = new ColaCircular<CartaEvento>();
-        cola.Encolar(new CartaEvento(1, "Ganaste un concurso, recibes 100", "RecibirDinero", 100));
-        cola.Encolar(new CartaEvento(2, "Multa de transito, pagas 50", "PagarDinero", 50));
-        cola.Encolar(new CartaEvento(3, "Un atajo, avanzas 3 casillas", "Avanzar", 3));
-        cola.Encolar(new CartaEvento(4, "Te equivocaste de camino, retrocedes 2 casillas", "Retroceder", 2));
-        cola.Encolar(new CartaEvento(5, "Huelga de buses, pierdes un turno", "PerderTurno", 1));
-        cola.Encolar(new CartaEvento(6, "Vas a la casilla 12", "IrACasilla", 12));
+        cola.Encolar(new CartaRecibirDinero(1, "Ganaste un concurso, recibes 100", 100));
+        cola.Encolar(new CartaPagarDinero(2, "Multa de transito, pagas 50", 50));
+        cola.Encolar(new CartaAvanzar(3, "Un atajo, avanzas 3 casillas", 3));
+        cola.Encolar(new CartaRetroceder(4, "Te equivocaste de camino, retrocedes 2 casillas", 2));
+        cola.Encolar(new CartaPerderTurno(5, "Huelga de buses, pierdes un turno", 1));
+        cola.Encolar(new CartaIrACasilla(6, "Vas a la casilla 12", 12));
         return cola;
     }
 }
