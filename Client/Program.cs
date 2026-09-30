@@ -7,6 +7,11 @@ namespace Client
     class Program
     {
         static Cliente cliente = new Cliente();
+        static DispositivoHardware? hardware = null;
+
+        // Se usan para registrar una tarjeta: el hilo del hardware avisa al hilo principal
+        static volatile bool esperandoTarjeta = false;
+        static string tarjetaLeida = "";
 
         static void Main(string[] args)
         {
@@ -24,6 +29,9 @@ namespace Client
                 nombre = "Jugador";
             }
 
+            Console.Write("Puerto serial del modulo (ej. COM3, ENTER si este PC no lo tiene): ");
+            string? nombrePuerto = Console.ReadLine();
+
             cliente.OnError += MostrarError;
             cliente.OnEvento += MostrarEvento;
             cliente.OnEstadoActualizado += MostrarTablero;
@@ -34,6 +42,23 @@ namespace Client
             {
                 Console.WriteLine("No se pudo conectar al servidor.");
                 return;
+            }
+
+            if (string.IsNullOrEmpty(nombrePuerto) == false)
+            {
+                DispositivoHardware modulo = new DispositivoHardware();
+                modulo.DadosLanzados += ManejarDados;
+                modulo.TarjetaLeida += ManejarTarjeta;
+
+                bool abierto = modulo.Abrir(nombrePuerto);
+                if (abierto == true)
+                {
+                    hardware = modulo;
+                }
+                else
+                {
+                    Console.WriteLine("No se pudo abrir el puerto " + nombrePuerto);
+                }
             }
 
             bool jugando = true;
@@ -53,7 +78,7 @@ namespace Client
 
                     if (opcion == "1")
                     {
-                        cliente.TirarDado();
+                        Console.WriteLine("Presiona el boton del modulo para lanzar los dados.");
                     }
                     else if (opcion == "2")
                     {
@@ -81,11 +106,79 @@ namespace Client
                         jugando = false;
                     }
                 }
+                else if (hardware != null && cliente.PartidaIniciada() == false)
+                {
+                    // Sala de espera: aqui se registran las tarjetas RFID
+                    if (Console.KeyAvailable == true)
+                    {
+                        string? comando = Console.ReadLine();
+                        if (comando == "R" || comando == "r")
+                        {
+                            RegistrarTarjeta();
+                        }
+                    }
+                    Thread.Sleep(200);
+                }
                 else
                 {
                     Thread.Sleep(200);
                 }
             }
+
+            if (hardware != null)
+            {
+                hardware.Cerrar();
+            }
+        }
+
+        // Se ejecuta en el hilo del hardware cuando se presiona el boton del modulo
+        static void ManejarDados(int dado1, int dado2)
+        {
+            cliente.TirarDado(dado1, dado2);
+        }
+
+        // Se ejecuta en el hilo del hardware cuando se acerca una tarjeta
+        static void ManejarTarjeta(string idTarjeta)
+        {
+            if (esperandoTarjeta == true)
+            {
+                tarjetaLeida = idTarjeta;
+                esperandoTarjeta = false;
+            }
+            else
+            {
+                cliente.PagarConTarjeta(idTarjeta);
+            }
+        }
+
+        static void RegistrarTarjeta()
+        {
+            Console.Write("Nombre del jugador dueno de la tarjeta: ");
+            string? nombreJugador = Console.ReadLine();
+            if (string.IsNullOrEmpty(nombreJugador))
+            {
+                return;
+            }
+
+            tarjetaLeida = "";
+            esperandoTarjeta = true;
+            Console.WriteLine("Acerca la tarjeta al lector (20 segundos)...");
+
+            int espera = 0;
+            while (esperandoTarjeta == true && espera < 200)
+            {
+                Thread.Sleep(100);
+                espera = espera + 1;
+            }
+
+            if (esperandoTarjeta == true)
+            {
+                esperandoTarjeta = false;
+                Console.WriteLine("No se leyo ninguna tarjeta.");
+                return;
+            }
+
+            cliente.RegistrarTarjeta(tarjetaLeida, nombreJugador);
         }
 
         static void MostrarError(string mensaje)
@@ -139,6 +232,12 @@ namespace Client
                     marca = " (tu)";
                 }
                 Console.WriteLine(j.Nombre + marca + " - Casilla " + j.Posicion + " - " + j.Saldo);
+            }
+
+            if (hardware != null && cliente.PartidaIniciada() == false)
+            {
+                Console.WriteLine("");
+                Console.WriteLine("Modulo conectado. Escribe R y ENTER para registrar una tarjeta RFID.");
             }
         }
 

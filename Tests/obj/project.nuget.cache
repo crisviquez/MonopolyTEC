@@ -1,27 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "yv8Bqw1mGsc=",
+  "dgSpecHash": "a9VZwyGRn9U=",
   "success": true,
-  "projectFilePath": "C:\\Users\\630206\\Documents\\MonopolyTEC\\Tests\\Dado.csproj",
-  "expectedPackageFiles": [
-    "C:\\Users\\630206\\.nuget\\packages\\runtime.android-arm.runtime.native.system.io.ports\\10.0.12\\runtime.android-arm.runtime.native.system.io.ports.10.0.12.nupkg.sha512",
-    "C:\\Users\\630206\\.nuget\\packages\\runtime.android-arm64.runtime.native.system.io.ports\\10.0.12\\runtime.android-arm64.runtime.native.system.io.ports.10.0.12.nupkg.sha512",
-    "C:\\Users\\630206\\.nuget\\packages\\runtime.android-x64.runtime.native.system.io.ports\\10.0.12\\runtime.android-x64.runtime.native.system.io.ports.10.0.12.nupkg.sha512",
-    "C:\\Users\\630206\\.nuget\\packages\\runtime.android-x86.runtime.native.system.io.ports\\10.0.12\\runtime.android-x86.runtime.native.system.io.ports.10.0.12.nupkg.sha512",
-    "C:\\Users\\630206\\.nuget\\packages\\runtime.linux-arm.runtime.native.system.io.ports\\10.0.12\\runtime.linux-arm.runtime.native.system.io.ports.10.0.12.nupkg.sha512",
-    "C:\\Users\\630206\\.nuget\\packages\\runtime.linux-arm64.runtime.native.system.io.ports\\10.0.12\\runtime.linux-arm64.runtime.native.system.io.ports.10.0.12.nupkg.sha512",
-    "C:\\Users\\630206\\.nuget\\packages\\runtime.linux-bionic-arm64.runtime.native.system.io.ports\\10.0.12\\runtime.linux-bionic-arm64.runtime.native.system.io.ports.10.0.12.nupkg.sha512",
-    "C:\\Users\\630206\\.nuget\\packages\\runtime.linux-bionic-x64.runtime.native.system.io.ports\\10.0.12\\runtime.linux-bionic-x64.runtime.native.system.io.ports.10.0.12.nupkg.sha512",
-    "C:\\Users\\630206\\.nuget\\packages\\runtime.linux-musl-arm.runtime.native.system.io.ports\\10.0.12\\runtime.linux-musl-arm.runtime.native.system.io.ports.10.0.12.nupkg.sha512",
-    "C:\\Users\\630206\\.nuget\\packages\\runtime.linux-musl-arm64.runtime.native.system.io.ports\\10.0.12\\runtime.linux-musl-arm64.runtime.native.system.io.ports.10.0.12.nupkg.sha512",
-    "C:\\Users\\630206\\.nuget\\packages\\runtime.linux-musl-x64.runtime.native.system.io.ports\\10.0.12\\runtime.linux-musl-x64.runtime.native.system.io.ports.10.0.12.nupkg.sha512",
-    "C:\\Users\\630206\\.nuget\\packages\\runtime.linux-x64.runtime.native.system.io.ports\\10.0.12\\runtime.linux-x64.runtime.native.system.io.ports.10.0.12.nupkg.sha512",
-    "C:\\Users\\630206\\.nuget\\packages\\runtime.maccatalyst-arm64.runtime.native.system.io.ports\\10.0.12\\runtime.maccatalyst-arm64.runtime.native.system.io.ports.10.0.12.nupkg.sha512",
-    "C:\\Users\\630206\\.nuget\\packages\\runtime.maccatalyst-x64.runtime.native.system.io.ports\\10.0.12\\runtime.maccatalyst-x64.runtime.native.system.io.ports.10.0.12.nupkg.sha512",
-    "C:\\Users\\630206\\.nuget\\packages\\runtime.native.system.io.ports\\10.0.12\\runtime.native.system.io.ports.10.0.12.nupkg.sha512",
-    "C:\\Users\\630206\\.nuget\\packages\\runtime.osx-arm64.runtime.native.system.io.ports\\10.0.12\\runtime.osx-arm64.runtime.native.system.io.ports.10.0.12.nupkg.sha512",
-    "C:\\Users\\630206\\.nuget\\packages\\runtime.osx-x64.runtime.native.system.io.ports\\10.0.12\\runtime.osx-x64.runtime.native.system.io.ports.10.0.12.nupkg.sha512",
-    "C:\\Users\\630206\\.nuget\\packages\\system.io.ports\\10.0.12\\system.io.ports.10.0.12.nupkg.sha512"
-  ],
+  "projectFilePath": "C:\\Users\\630206\\Documents\\MonopolyTEC\\Tests\\Tests.csproj",
+  "expectedPackageFiles": [],
   "logs": []
 }

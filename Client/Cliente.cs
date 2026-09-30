@@ -33,12 +33,21 @@ namespace Client
 
         public bool EsMiTurno()
         {
-
             if (idPropio == 0)
             {
                 return false;
             }
             if (turnoActualId == idPropio)
+            {
+                return true;
+            }
+            return false;
+        }
+
+        // El servidor manda el primer TU_TURNO al iniciar la partida
+        public bool PartidaIniciada()
+        {
+            if (turnoActualId != 0)
             {
                 return true;
             }
@@ -79,8 +88,8 @@ namespace Client
                 {
                     OnError("Se perdio la conexion con el servidor");
                 }
-    }
-}
+            }
+        }
 
         public bool Conectar(string ip, int puerto, string nombre)
         {
@@ -226,9 +235,14 @@ namespace Client
             return null;
         }
 
-        public void TirarDado()
+        // Los valores vienen de los dados fisicos; el servidor los valida
+        public void TirarDado(int dado1, int dado2)
         {
-            Mensaje mensaje = new Mensaje(TipoMensaje.TIRAR_DADO);
+            DatosTirarDado datos = new DatosTirarDado();
+            datos.Dado1 = dado1;
+            datos.Dado2 = dado2;
+
+            Mensaje mensaje = new Mensaje(TipoMensaje.TIRAR_DADO, datos);
             red.Enviar(mensaje);
         }
 
@@ -247,6 +261,26 @@ namespace Client
         public void PagarDeuda()
         {
             Mensaje mensaje = new Mensaje(TipoMensaje.PAGAR_DEUDA);
+            red.Enviar(mensaje);
+        }
+
+        public void RegistrarTarjeta(string idTarjeta, string nombreJugador)
+        {
+            DatosTarjeta datos = new DatosTarjeta();
+            datos.IdTarjeta = idTarjeta;
+            datos.NombreJugador = nombreJugador;
+
+            Mensaje mensaje = new Mensaje(TipoMensaje.REGISTRAR_TARJETA, datos);
+            red.Enviar(mensaje);
+        }
+
+        // El servidor identifica al jugador por la tarjeta y paga su deuda
+        public void PagarConTarjeta(string idTarjeta)
+        {
+            DatosTarjeta datos = new DatosTarjeta();
+            datos.IdTarjeta = idTarjeta;
+
+            Mensaje mensaje = new Mensaje(TipoMensaje.TARJETA_RFID, datos);
             red.Enviar(mensaje);
         }
 
