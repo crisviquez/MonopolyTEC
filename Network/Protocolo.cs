@@ -100,6 +100,7 @@ namespace Network
         public int Saldo { get; set; }
         public List<int> Propiedades { get; set; } = new List<int>();
         public bool EnBancarrota { get; set; }
+        public bool TieneTarjeta { get; set; }
     }
 
     public class DatosConexionAceptada

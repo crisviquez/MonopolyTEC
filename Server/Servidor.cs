@@ -71,7 +71,7 @@ namespace Server
         }
 
         // Lo llama el organizador desde la consola (o solo cuando se conectan 4)
-        public bool IniciarPartida()
+                public bool IniciarPartida()
         {
             lock (candado)
             {
@@ -79,6 +79,8 @@ namespace Server
                 if (error != "")
                 {
                     Console.WriteLine(error);
+                    juego.AgregarEvento(error);
+                    PublicarCambios(null);
                     return false;
                 }
 
@@ -148,25 +150,25 @@ namespace Server
                 {
                     ManejarTirarDado(cliente, mensaje);
                 }
-                else if (mensaje.Tipo == TipoMensaje.COMPRAR_PROPIEDAD)
+                                else if (mensaje.Tipo == TipoMensaje.COMPRAR_PROPIEDAD)
                 {
-                    ResponderAccion(cliente, juego.ComprarPropiedad(jugador));
+                    SolicitarTarjeta(cliente, AccionTarjeta.COMPRAR, "comprar la propiedad");
                 }
                 else if (mensaje.Tipo == TipoMensaje.NO_COMPRAR)
                 {
-                    ResponderAccion(cliente, juego.NoComprar(jugador));
+                    SolicitarTarjeta(cliente, AccionTarjeta.NO_COMPRAR, "no comprar la propiedad");
                 }
                 else if (mensaje.Tipo == TipoMensaje.PAGAR_DEUDA)
                 {
-                    ResponderAccion(cliente, juego.PagarDeuda(jugador));
+                    SolicitarTarjeta(cliente, AccionTarjeta.PAGAR, "pagar la deuda");
                 }
                 else if (mensaje.Tipo == TipoMensaje.TERMINAR_TURNO)
                 {
-                    ResponderAccion(cliente, juego.TerminarTurno(jugador));
+                    SolicitarTarjeta(cliente, AccionTarjeta.TERMINAR_TURNO, "terminar el turno");
                 }
                 else if (mensaje.Tipo == TipoMensaje.CONSULTAR_TRANSACCIONES)
                 {
-                    EnviarHistorial(cliente);
+                    SolicitarTarjeta(cliente, AccionTarjeta.CONSULTAR, "consultar el historial");
                 }
                 else if (mensaje.Tipo == TipoMensaje.REGISTRAR_TARJETA)
                 {
@@ -266,11 +268,7 @@ namespace Server
             int cantidad = juego.ObtenerJugadores().Cantidad;
             juego.AgregarEvento(nombre + " se unio a la partida (" + cantidad + "/" + Juego.MAX_JUGADORES + ")");
             PublicarCambios(null);
-
-            if (cantidad == Juego.MAX_JUGADORES)
-            {
-                IniciarPartida();
-            }
+            
         }
 
         // Los dados son fisicos y el modulo es compartido: se aplican al jugador que tiene el turno
@@ -306,7 +304,7 @@ namespace Server
             }
         }
 
-        private void ManejarRegistrarTarjeta(ClienteConectado cliente, Mensaje mensaje)
+                private void ManejarRegistrarTarjeta(ClienteConectado cliente, Mensaje mensaje)
         {
             DatosTarjeta? datos = mensaje.LeerDatos<DatosTarjeta>();
             if (datos == null)
@@ -315,10 +313,17 @@ namespace Server
                 return;
             }
 
-            ResponderAccion(cliente, juego.RegistrarTarjeta(datos.NombreJugador, datos.IdTarjeta));
+            string error = juego.RegistrarTarjeta(datos.NombreJugador, datos.IdTarjeta);
+            ResponderAccion(cliente, error);
+
+            // Con 4 jugadores y todas las tarjetas registradas la partida inicia sola
+            if (error == "" && juego.ObtenerJugadores().Cantidad == Juego.MAX_JUGADORES && juego.TodosTienenTarjeta() == true)
+            {
+                IniciarPartida();
+            }
         }
 
-        // La tarjeta identifica al jugador y el servidor valida el pago
+        // La tarjeta identifica al jugador y confirma la accion que ese jugador eligio antes
         private void ManejarTarjetaRfid(ClienteConectado cliente, Mensaje mensaje)
         {
             DatosTarjeta? datos = mensaje.LeerDatos<DatosTarjeta>();
@@ -335,7 +340,56 @@ namespace Server
                 return;
             }
 
-            ResponderAccion(cliente, juego.PagarDeuda(dueno));
+            ClienteConectado? clienteDueno = BuscarClienteDeJugador(dueno);
+            if (clienteDueno == null)
+            {
+                EnviarError(cliente, "El dueno de la tarjeta no esta conectado");
+                return;
+            }
+
+            AccionTarjeta accion = clienteDueno.AccionPendiente;
+            if (accion == AccionTarjeta.NINGUNA)
+            {
+                EnviarError(cliente, dueno.Nombre + " no ha elegido ninguna accion que requiera tarjeta");
+                return;
+            }
+            clienteDueno.AccionPendiente = AccionTarjeta.NINGUNA;
+
+            if (accion == AccionTarjeta.COMPRAR)
+            {
+                ResponderAccion(clienteDueno, juego.ComprarPropiedad(dueno));
+            }
+            else if (accion == AccionTarjeta.NO_COMPRAR)
+            {
+                ResponderAccion(clienteDueno, juego.NoComprar(dueno));
+            }
+            else if (accion == AccionTarjeta.PAGAR)
+            {
+                ResponderAccion(clienteDueno, juego.PagarDeuda(dueno));
+            }
+            else if (accion == AccionTarjeta.TERMINAR_TURNO)
+            {
+                ResponderAccion(clienteDueno, juego.TerminarTurno(dueno));
+            }
+            else if (accion == AccionTarjeta.CONSULTAR)
+            {
+                EnviarHistorial(clienteDueno);
+            }
+        }
+
+        // Guarda la accion y le pide la tarjeta al jugador
+        private void SolicitarTarjeta(ClienteConectado cliente, AccionTarjeta accion, string texto)
+        {
+            cliente.AccionPendiente = accion;
+            EnviarEventoA(cliente, "Acerca tu tarjeta al lector para " + texto);
+        }
+
+        private void EnviarEventoA(ClienteConectado cliente, string texto)
+        {
+            DatosEvento datos = new DatosEvento();
+            datos.IdJugador = 0;
+            datos.Descripcion = texto;
+            cliente.Enviar(new Mensaje(TipoMensaje.EVENTO, datos));
         }
 
         private ClienteConectado? BuscarClienteDeJugador(Jugador jugador)
@@ -518,6 +572,11 @@ namespace Server
                 estado.Posicion = j.Posicion;
                 estado.Saldo = j.Saldo;
                 estado.EnBancarrota = j.EnBancarrota;
+
+                if (j.IdTarjeta != "")
+                {
+                    estado.TieneTarjeta = true;
+                }
 
                 foreach (Propiedad p in j.Propiedades)
                 {

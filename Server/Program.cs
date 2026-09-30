@@ -25,8 +25,8 @@ namespace Server
 
             Console.WriteLine("=== SERVIDOR MONOPOLY TEC ===");
             Console.WriteLine("Escuchando en el puerto " + puerto + " (limite de turnos: " + maxTurnos + ")");
-            Console.WriteLine("La partida inicia sola con 4 jugadores.");
-            Console.WriteLine("ENTER: iniciar la partida con los jugadores conectados (minimo 2).");
+            Console.WriteLine("La partida inicia sola con 4 jugadores registrados con tarjeta.");
+            Console.WriteLine("ENTER: iniciar la partida (minimo 2 jugadores, todos con tarjeta).");
             Console.WriteLine("Con la partida iniciada, ENTER cierra el servidor.");
 
             bool cerrar = false;

@@ -11,7 +11,7 @@ namespace Server
     public class ClienteConectado
     {
         public Jugador? JugadorAsociado { get; set; }
-
+        public AccionTarjeta AccionPendiente { get; set; }
         private TcpClient socket;
         private NetworkStream stream;
         private StreamReader lector;
@@ -28,6 +28,7 @@ namespace Server
             candadoEnvio = new object();
             activo = true;
             JugadorAsociado = null;
+            AccionPendiente = AccionTarjeta.NINGUNA;
         }
 
         public void Iniciar()
