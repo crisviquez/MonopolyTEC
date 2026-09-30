@@ -19,6 +19,7 @@ namespace Client
         public event Action? OnEstadoActualizado;
         public event Action<string>? OnError;
         public event Action<DatosOfertaCompra>? OnOfertaCompra;
+        public event Action? OnHistorial;
 
         public Cliente()
         {
@@ -27,7 +28,7 @@ namespace Client
             historial = new ListaSimple<TransaccionInfo>();
             idPropio = 0;
             turnoActualId = 0;
-            numeroCasillas = 24; // valor por defecto mientras el servidor no confirme el real
+            numeroCasillas = 40; // valor por defecto mientras el servidor no confirme el real
             conectadoAlServidor = false;
         }
 
@@ -168,6 +169,10 @@ namespace Client
             {
                 DatosHistorialTransacciones datos = mensaje.LeerDatos<DatosHistorialTransacciones>();
                 ActualizarHistorial(datos.Transacciones);
+                if (OnHistorial != null)
+                {
+                    OnHistorial();
+                }
             }
             else if (mensaje.Tipo == TipoMensaje.EVENTO)
             {
@@ -275,7 +280,7 @@ namespace Client
         }
 
         // El servidor identifica al jugador por la tarjeta y paga su deuda
-        public void PagarConTarjeta(string idTarjeta)
+        public void UsarTarjeta(string idTarjeta)
         {
             DatosTarjeta datos = new DatosTarjeta();
             datos.IdTarjeta = idTarjeta;

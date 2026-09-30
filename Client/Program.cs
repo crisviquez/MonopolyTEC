@@ -8,6 +8,7 @@ namespace Client
     {
         static Cliente cliente = new Cliente();
         static DispositivoHardware? hardware = null;
+        static string nombrePropio = "";
 
         // Se usan para registrar una tarjeta: el hilo del hardware avisa al hilo principal
         static volatile bool esperandoTarjeta = false;
@@ -28,6 +29,7 @@ namespace Client
             {
                 nombre = "Jugador";
             }
+            nombrePropio = nombre;
 
             Console.Write("Puerto serial del modulo (ej. COM3, ENTER si este PC no lo tiene): ");
             string? nombrePuerto = Console.ReadLine();
@@ -36,6 +38,7 @@ namespace Client
             cliente.OnEvento += MostrarEvento;
             cliente.OnEstadoActualizado += MostrarTablero;
             cliente.OnOfertaCompra += ManejarOfertaCompra;
+            cliente.OnHistorial += MostrarHistorial;
 
             bool conectado = cliente.Conectar(ip, 5000, nombre);
             if (conectado == false)
@@ -73,7 +76,8 @@ namespace Client
                 if (cliente.EsMiTurno())
                 {
                     Console.WriteLine("");
-                    Console.WriteLine("[1] Tirar dado  [2] Comprar  [3] Pagar deuda  [4] Terminar turno  [5] Ver historial  [6] No comprar  [0] Salir");
+                    Console.WriteLine("[1] Tirar dado  [2] Comprar*  [3] Pagar deuda*  [4] Terminar turno*  [5] Ver historial*  [6] No comprar*  [0] Salir");
+                    Console.WriteLine("* requiere acercar tu tarjeta al lector");
                     string? opcion = Console.ReadLine();
 
                     if (opcion == "1")
@@ -94,7 +98,7 @@ namespace Client
                     }
                     else if (opcion == "5")
                     {
-                        MostrarHistorial();
+                        cliente.ConsultarHistorial();
                     }
                     else if (opcion == "6")
                     {
@@ -147,17 +151,17 @@ namespace Client
             }
             else
             {
-                cliente.PagarConTarjeta(idTarjeta);
+                cliente.UsarTarjeta(idTarjeta);
             }
         }
 
         static void RegistrarTarjeta()
         {
-            Console.Write("Nombre del jugador dueno de la tarjeta: ");
+            Console.Write("Nombre del jugador dueno de la tarjeta (ENTER = " + nombrePropio + "): ");
             string? nombreJugador = Console.ReadLine();
             if (string.IsNullOrEmpty(nombreJugador))
             {
-                return;
+                nombreJugador = nombrePropio;
             }
 
             tarjetaLeida = "";
@@ -196,14 +200,12 @@ namespace Client
         {
             Console.WriteLine("");
             Console.WriteLine("Casilla " + datos.IdCasilla + ": " + datos.NombrePropiedad + " - Precio: " + datos.Precio);
-            Console.WriteLine("Elige [2] Comprar o [6] No comprar");
+            Console.WriteLine("Elige [2] Comprar o [6] No comprar (con tu tarjeta)");
         }
 
+        // Se dispara cuando llega el historial, despues de acercar la tarjeta
         static void MostrarHistorial()
         {
-            cliente.ConsultarHistorial();
-            Thread.Sleep(300); // no hay confirmacion de llegada; se espera un poco a que llegue la respuesta
-
             Console.WriteLine("");
             Console.WriteLine("=== Historial de transacciones ===");
 
@@ -224,6 +226,8 @@ namespace Client
             DibujarTablero();
             Console.WriteLine("");
 
+            bool partidaIniciada = cliente.PartidaIniciada();
+
             foreach (JugadorEstado j in cliente.ObtenerJugadores())
             {
                 string marca = "";
@@ -231,13 +235,32 @@ namespace Client
                 {
                     marca = " (tu)";
                 }
-                Console.WriteLine(j.Nombre + marca + " - Casilla " + j.Posicion + " - " + j.Saldo);
+
+                string tarjeta = "";
+                if (partidaIniciada == false)
+                {
+                    if (j.TieneTarjeta == true)
+                    {
+                        tarjeta = " [tarjeta OK]";
+                    }
+                    else
+                    {
+                        tarjeta = " [SIN TARJETA]";
+                    }
+                }
+
+                Console.WriteLine(j.Nombre + marca + " - Casilla " + j.Posicion + " - " + j.Saldo + tarjeta);
             }
 
-            if (hardware != null && cliente.PartidaIniciada() == false)
+            if (partidaIniciada == false)
             {
                 Console.WriteLine("");
-                Console.WriteLine("Modulo conectado. Escribe R y ENTER para registrar una tarjeta RFID.");
+                Console.WriteLine("Todos los jugadores deben registrar su tarjeta RFID para iniciar la partida.");
+
+                if (hardware != null)
+                {
+                    Console.WriteLine("Modulo conectado. Escribe R y ENTER para registrar una tarjeta RFID.");
+                }
             }
         }
 
@@ -267,7 +290,7 @@ namespace Client
                 Console.Write(casillaTexto + " ");
 
                 bool finDeFila = false;
-                if ((i + 1) % 8 == 0)
+                if ((i + 1) % 10 == 0)
                 {
                     finDeFila = true;
                 }
