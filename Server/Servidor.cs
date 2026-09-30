@@ -146,16 +146,7 @@ namespace Server
 
                 if (mensaje.Tipo == TipoMensaje.TIRAR_DADO)
                 {
-                    string error = juego.TirarDados(jugador);
-                    if (error != "")
-                    {
-                        EnviarError(cliente, error);
-                    }
-                    else
-                    {
-                        PublicarCambios(jugador);
-                        EnviarOfertaCompra(cliente);
-                    }
+                    ManejarTirarDado(cliente, mensaje);
                 }
                 else if (mensaje.Tipo == TipoMensaje.COMPRAR_PROPIEDAD)
                 {
@@ -176,6 +167,14 @@ namespace Server
                 else if (mensaje.Tipo == TipoMensaje.CONSULTAR_TRANSACCIONES)
                 {
                     EnviarHistorial(cliente);
+                }
+                else if (mensaje.Tipo == TipoMensaje.REGISTRAR_TARJETA)
+                {
+                    ManejarRegistrarTarjeta(cliente, mensaje);
+                }
+                else if (mensaje.Tipo == TipoMensaje.TARJETA_RFID)
+                {
+                    ManejarTarjetaRfid(cliente, mensaje);
                 }
                 else if (mensaje.Tipo == TipoMensaje.DESCONECTAR)
                 {
@@ -272,6 +271,84 @@ namespace Server
             {
                 IniciarPartida();
             }
+        }
+
+        // Los dados son fisicos y el modulo es compartido: se aplican al jugador que tiene el turno
+        private void ManejarTirarDado(ClienteConectado cliente, Mensaje mensaje)
+        {
+            DatosTirarDado? datos = mensaje.LeerDatos<DatosTirarDado>();
+            if (datos == null)
+            {
+                EnviarError(cliente, "Faltan los valores de los dados");
+                return;
+            }
+            if (juego.HaIniciado() == false)
+            {
+                EnviarError(cliente, "La partida no ha iniciado");
+                return;
+            }
+
+            Jugador actual = juego.ObtenerJugadorActual();
+            string error = juego.TirarDados(actual, datos.Dado1, datos.Dado2);
+            if (error != "")
+            {
+                EnviarError(cliente, error);
+                return;
+            }
+
+            PublicarCambios(actual);
+
+            // La oferta de compra le llega al jugador que cayo, no a quien tiene el modulo
+            ClienteConectado? clienteActual = BuscarClienteDeJugador(actual);
+            if (clienteActual != null)
+            {
+                EnviarOfertaCompra(clienteActual);
+            }
+        }
+
+        private void ManejarRegistrarTarjeta(ClienteConectado cliente, Mensaje mensaje)
+        {
+            DatosTarjeta? datos = mensaje.LeerDatos<DatosTarjeta>();
+            if (datos == null)
+            {
+                EnviarError(cliente, "Faltan los datos de la tarjeta");
+                return;
+            }
+
+            ResponderAccion(cliente, juego.RegistrarTarjeta(datos.NombreJugador, datos.IdTarjeta));
+        }
+
+        // La tarjeta identifica al jugador y el servidor valida el pago
+        private void ManejarTarjetaRfid(ClienteConectado cliente, Mensaje mensaje)
+        {
+            DatosTarjeta? datos = mensaje.LeerDatos<DatosTarjeta>();
+            if (datos == null)
+            {
+                EnviarError(cliente, "Faltan los datos de la tarjeta");
+                return;
+            }
+
+            Jugador? dueno = juego.BuscarJugadorPorTarjeta(datos.IdTarjeta);
+            if (dueno == null)
+            {
+                EnviarError(cliente, "Tarjeta no registrada");
+                return;
+            }
+
+            ResponderAccion(cliente, juego.PagarDeuda(dueno));
+        }
+
+        private ClienteConectado? BuscarClienteDeJugador(Jugador jugador)
+        {
+            foreach (ClienteConectado c in clientes)
+            {
+                Jugador? asociado = c.JugadorAsociado;
+                if (asociado != null && asociado.Id == jugador.Id)
+                {
+                    return c;
+                }
+            }
+            return null;
         }
 
         private bool NombreEnUso(string nombre)
