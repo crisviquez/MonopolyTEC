@@ -747,3 +747,66 @@ public class DatosConexionAceptada
 ```
 
 Si el servidor no lo envía (o envía 0), el cliente usa 24 como valor por defecto.
+
+## 18. Dados fisicos y tarjetas RFID
+
+Los dados los lanza el modulo fisico (Arduino). El servidor ya no genera numeros aleatorios: solo valida los valores que recibe.
+
+### Cliente → Servidor
+
+| Tipo | Descripción |
+|---|---|
+| `TIRAR_DADO` | Envía el resultado del dado físico. Ahora lleva `DatosTirarDado`. |
+| `REGISTRAR_TARJETA` | Asocia una tarjeta RFID a un jugador (solo en la sala de espera). |
+| `TARJETA_RFID` | Se acercó una tarjeta al lector: el servidor identifica al jugador y le cobra su deuda pendiente. |
+
+### `TIRAR_DADO`
+
+```json
+{
+    "Tipo": "TIRAR_DADO",
+    "Datos": { "Dado1": 3, "Dado2": 4 }
+}
+```
+
+El módulo es compartido, por lo que el servidor aplica la tirada al jugador que tiene el turno. Rechaza la tirada si los valores no están entre 1 y 6, si la partida no ha iniciado, si ya se lanzaron los dados en ese turno o si la partida terminó.
+
+### `REGISTRAR_TARJETA` y `TARJETA_RFID`
+
+Ambos usan `DatosTarjeta`:
+
+```json
+{
+    "Tipo": "REGISTRAR_TARJETA",
+    "Datos": { "IdTarjeta": "0A1B2C3D4E", "NombreJugador": "Ana" }
+}
+```
+
+```json
+{
+    "Tipo": "TARJETA_RFID",
+    "Datos": { "IdTarjeta": "0A1B2C3D4E" }
+}
+```
+
+`TARJETA_RFID` solo usa `IdTarjeta`. La tarjeta únicamente identifica al jugador; el saldo y la validación siempre están en el servidor. Errores posibles: tarjeta no registrada, no es su turno, no tiene deuda pendiente.
+
+### Ejemplo de la sección 13
+
+En el ejemplo "tirar los dados", el paso 3 ahora es:
+
+```json
+{
+    "Tipo": "TIRAR_DADO",
+    "Datos": { "Dado1": 4, "Dado2": 6 }
+}
+```
+
+### Lectura serial del Arduino (cliente C#)
+
+El Arduino escribe por serial (9600 baudios), una línea por evento:
+
+```text
+DADOS:3,5
+RFID:0A1B2C3D4E
+```
