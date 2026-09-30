@@ -13,6 +13,8 @@ namespace Network
         PAGAR_DEUDA,
         TERMINAR_TURNO,
         CONSULTAR_TRANSACCIONES,
+        REGISTRAR_TARJETA,
+        TARJETA_RFID,
         DESCONECTAR,
 
         // Servidor -> Cliente
@@ -73,6 +75,20 @@ namespace Network
     public class DatosConectar
     {
         public string Nombre { get; set; } = "";
+    }
+
+    // Los dados son fisicos: el modulo los lanza y el cliente solo reenvia los valores
+    public class DatosTirarDado
+    {
+        public int Dado1 { get; set; }
+        public int Dado2 { get; set; }
+    }
+
+    // REGISTRAR_TARJETA usa IdTarjeta y NombreJugador; TARJETA_RFID solo usa IdTarjeta
+    public class DatosTarjeta
+    {
+        public string IdTarjeta { get; set; } = "";
+        public string NombreJugador { get; set; } = "";
     }
 
     // -- Payloads Servidor -> Cliente --
