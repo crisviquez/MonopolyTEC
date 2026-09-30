@@ -27,10 +27,23 @@ namespace Tests
             DatosResultadoDado datosDados = dadosRecibido!.LeerDatos<DatosResultadoDado>();
             Verificar(datosDados.Dado1 == 4 && datosDados.Dado2 == 6, "Valores de dados se preservan");
 
+            // Mensaje TIRAR_DADO con los valores del dado fisico
+            Mensaje tirada = new Mensaje(TipoMensaje.TIRAR_DADO, new DatosTirarDado { Dado1 = 2, Dado2 = 5 });
+            Mensaje? tiradaRecibida = Mensaje.Deserializar(tirada.Serializar());
+            DatosTirarDado datosTirada = tiradaRecibida!.LeerDatos<DatosTirarDado>();
+            Verificar(tiradaRecibida.Tipo == TipoMensaje.TIRAR_DADO, "Tipo TIRAR_DADO se preserva");
+            Verificar(datosTirada.Dado1 == 2 && datosTirada.Dado2 == 5, "Valores del dado fisico se preservan");
+
+            // Mensaje con la tarjeta RFID
+            Mensaje tarjeta = new Mensaje(TipoMensaje.REGISTRAR_TARJETA, new DatosTarjeta { IdTarjeta = "0A1B2C3D4E", NombreJugador = "Ana" });
+            Mensaje? tarjetaRecibida = Mensaje.Deserializar(tarjeta.Serializar());
+            DatosTarjeta datosTarjeta = tarjetaRecibida!.LeerDatos<DatosTarjeta>();
+            Verificar(datosTarjeta.IdTarjeta == "0A1B2C3D4E" && datosTarjeta.NombreJugador == "Ana", "Datos de la tarjeta se preservan");
+
             // Mensaje sin Datos (null)
-            Mensaje sinDatos = new Mensaje(TipoMensaje.TIRAR_DADO);
+            Mensaje sinDatos = new Mensaje(TipoMensaje.PAGAR_DEUDA);
             Mensaje? sinDatosRecibido = Mensaje.Deserializar(sinDatos.Serializar());
-            Verificar(sinDatosRecibido != null && sinDatosRecibido.Tipo == TipoMensaje.TIRAR_DADO, "Mensaje sin Datos se deserializa bien");
+            Verificar(sinDatosRecibido != null && sinDatosRecibido.Tipo == TipoMensaje.PAGAR_DEUDA, "Mensaje sin Datos se deserializa bien");
 
             Console.WriteLine();
         }

@@ -4,8 +4,10 @@ namespace Tests
     {
         public static void Main(string[] args)
         {
-            //PruebaSerializacion.Ejecutar();
-            //PruebaEcoServidor.Ejecutar();
+            PruebaSerializacion.Ejecutar();
+            PruebaTransaccion.Ejecutar();
+            PruebaJuegoHardware.Ejecutar();
+            PruebaEcoServidor.Ejecutar();
             PruebaFragmentacion.Ejecutar();
         }
     }
