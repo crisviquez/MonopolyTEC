@@ -4,9 +4,11 @@ using Monopoly.Estructuras;
 public class Juego
 {
     public const int MAX_JUGADORES = 4;
-    public const int MINIMO_CASILLAS = 24;
     public const int MAX_TURNOS_POR_DEFECTO = 60;
     public const int IMPUESTO = 100;
+        public const int MINIMO_CASILLAS = 40;
+    public const int POSICION_CARCEL = 10;
+    public const int TURNOS_EN_CARCEL = 1;
 
     public int NumeroCasillas { get; set; }
 
@@ -156,6 +158,11 @@ public class Juego
         {
             return "Se necesitan al menos 2 jugadores para iniciar";
         }
+        string faltantes = NombresSinTarjeta();
+        if (faltantes != "")
+        {
+            return "No se puede iniciar, faltan tarjetas RFID de: " + faltantes;
+        }
 
         foreach (Jugador j in jugadores)
         {
@@ -216,6 +223,36 @@ public class Juego
             }
         }
         return null;
+    }
+
+        public string NombresSinTarjeta()
+    {
+        string nombres = "";
+        foreach (Jugador j in jugadores)
+        {
+            if (j.IdTarjeta == "")
+            {
+                if (nombres != "")
+                {
+                    nombres = nombres + ", ";
+                }
+                nombres = nombres + j.Nombre;
+            }
+        }
+        return nombres;
+    }
+
+    public bool TodosTienenTarjeta()
+    {
+        if (jugadores.Cantidad == 0)
+        {
+            return false;
+        }
+        if (NombresSinTarjeta() == "")
+        {
+            return true;
+        }
+        return false;
     }
 
     // Asocia una tarjeta a un jugador. Solo se permite en la sala de espera
@@ -392,10 +429,10 @@ public class Juego
 
     // ---------- Metodos que llaman las casillas desde Ejecutar ----------
 
-    public void OfrecerPropiedad(Jugador jugador, Propiedad propiedad)
+        public void OfrecerPropiedad(Jugador jugador, Propiedad propiedad)
     {
         ofertaPendiente = propiedad;
-        AgregarEvento(jugador.Nombre + " cayo en " + propiedad.Nombre + ", esta libre por " + propiedad.Precio);
+        AgregarEvento(jugador.Nombre + " cayo en " + propiedad.Nombre + " (" + propiedad.Color + "), esta libre por " + propiedad.Precio);
     }
 
     public void CobrarAlquiler(Jugador jugador, Propiedad propiedad)
@@ -406,9 +443,17 @@ public class Juego
             return;
         }
 
+        int alquiler = propiedad.CalcularAlquiler();
         string descripcion = jugador.Nombre + " paga alquiler de " + propiedad.Nombre + " a " + dueno.Nombre;
-        deudaPendiente = new DeudaPendiente(propiedad.Alquiler, dueno, TipoTransaccion.PAGO_ALQUILER, descripcion);
-        AgregarEvento(jugador.Nombre + " debe pagar alquiler de " + propiedad.Alquiler + " a " + dueno.Nombre);
+        deudaPendiente = new DeudaPendiente(alquiler, dueno, TipoTransaccion.PAGO_ALQUILER, descripcion);
+        AgregarEvento(jugador.Nombre + " debe pagar alquiler de " + alquiler + " a " + dueno.Nombre);
+    }
+
+    public void EnviarALaCarcel(Jugador jugador)
+    {
+        jugador.Posicion = POSICION_CARCEL;
+        jugador.TurnosPorPerder = jugador.TurnosPorPerder + TURNOS_EN_CARCEL;
+        AgregarEvento(jugador.Nombre + " va a la carcel y pierde " + TURNOS_EN_CARCEL + " turno");
     }
 
     public void CobrarImpuesto(Jugador jugador, CasillaEspecial casilla)
@@ -647,7 +692,7 @@ public class Juego
         cola.Encolar(new CartaAvanzar(3, "Un atajo, avanzas 3 casillas", 3));
         cola.Encolar(new CartaRetroceder(4, "Te equivocaste de camino, retrocedes 2 casillas", 2));
         cola.Encolar(new CartaPerderTurno(5, "Huelga de buses, pierdes un turno", 1));
-        cola.Encolar(new CartaIrACasilla(6, "Vas a la casilla 12", 12));
+        cola.Encolar(new CartaIrACasilla(6, "Viaje al Santiago Bernabeu, vas a la casilla 39", 39));
         return cola;
     }
 }
