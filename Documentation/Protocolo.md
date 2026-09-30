@@ -63,14 +63,18 @@ Datos = IdJugador: 1, Dado1: 4, Dado2: 6
 
 ### Cliente → Servidor
 
-| Tipo | Descripción |
-|---|---|
-| `CONECTAR` | Solicita conectarse al servidor. |
-| `TIRAR_DADO` | Solicita realizar una tirada. |
-| `COMPRAR_PROPIEDAD` | Solicita comprar una propiedad. |
-| `PAGAR_DEUDA` | Indica que se debe pagar una deuda. |
-| `TERMINAR_TURNO` | Indica que el jugador terminó su turno. |
-| `DESCONECTAR` | Solicita cerrar la conexión. |
+| Tipo | Descripción | Tarjeta |
+|---|---|---|
+| `CONECTAR` | Solicita conectarse al servidor. | No |
+| `REGISTRAR_TARJETA` | Asocia una tarjeta RFID a un jugador (solo en la sala de espera). | No |
+| `TIRAR_DADO` | Envía el resultado de los dados físicos. | No |
+| `DESCONECTAR` | Solicita cerrar la conexión. | No |
+| `COMPRAR_PROPIEDAD` | Solicita comprar la propiedad ofrecida. | Sí |
+| `NO_COMPRAR` | Rechaza la propiedad ofrecida. | Sí |
+| `PAGAR_DEUDA` | Solicita pagar la deuda pendiente. | Sí |
+| `TERMINAR_TURNO` | Solicita terminar el turno. | Sí |
+| `CONSULTAR_TRANSACCIONES` | Solicita el historial de transacciones. | Sí |
+| `TARJETA_RFID` | Se acercó una tarjeta al lector; confirma la acción pendiente de su dueño. | — |
 
 ### Servidor → Cliente
 
@@ -81,11 +85,11 @@ Datos = IdJugador: 1, Dado1: 4, Dado2: 6
 | `ACTUALIZAR_ESTADO` | Envía el estado actual de los jugadores. |
 | `TU_TURNO` | Indica qué jugador tiene el turno. |
 | `RESULTADO_DADO` | Envía el resultado de los dados. |
-| `EVENTO` | Notifica un evento del juego. |
+| `OFERTA_COMPRA` | El jugador cayó en una propiedad libre y puede comprarla. |
+| `HISTORIAL_TRANSACCIONES` | Envía el historial solicitado. |
+| `EVENTO` | Notifica un evento del juego (también pide la tarjeta al jugador). |
 | `ERROR` | Informa sobre un error. |
 | `FIN_JUEGO` | Indica que la partida terminó. |
-
----
 
 ## 5. Datos asociados a los mensajes
 
@@ -166,6 +170,7 @@ Posicion
 Saldo
 Propiedades
 EnBancarrota
+TieneTarjeta
 ```
 
 ### `TU_TURNO`
@@ -746,21 +751,47 @@ public class DatosConexionAceptada
 }
 ```
 
-Si el servidor no lo envía (o envía 0), el cliente usa 24 como valor por defecto.
+Si el servidor no lo envía (o envía 0), el cliente usa 40 como valor por defecto.
 
-## 18. Dados fisicos y tarjetas RFID
+## 18. Dados físicos y tarjetas RFID
 
-Los dados los lanza el modulo fisico (Arduino). El servidor ya no genera numeros aleatorios: solo valida los valores que recibe.
+Los dados y el lector RFID pertenecen al módulo físico (Arduino). El servidor no genera números aleatorios: solo valida los valores que recibe.
 
-### Cliente → Servidor
+### Registro obligatorio de tarjetas
 
-| Tipo | Descripción |
-|---|---|
-| `TIRAR_DADO` | Envía el resultado del dado físico. Ahora lleva `DatosTirarDado`. |
-| `REGISTRAR_TARJETA` | Asocia una tarjeta RFID a un jugador (solo en la sala de espera). |
-| `TARJETA_RFID` | Se acercó una tarjeta al lector: el servidor identifica al jugador y le cobra su deuda pendiente. |
+Todos los jugadores deben tener una tarjeta registrada. El servidor rechaza iniciar la partida (por `ENTER` en consola o automáticamente con 4 jugadores) mientras falte alguna, y avisa con un `EVENTO` quiénes faltan. La partida inicia sola cuando hay 4 jugadores y todas las tarjetas están registradas.
 
-### `TIRAR_DADO`
+`REGISTRAR_TARJETA` solo se acepta en la sala de espera. Una tarjeta no puede pertenecer a dos jugadores.
+
+```json
+{
+    "Tipo": "REGISTRAR_TARJETA",
+    "Datos": { "IdTarjeta": "0A1B2C3D4E", "NombreJugador": "Ana" }
+}
+```
+
+### Acciones con tarjeta (dos pasos)
+
+Todas las acciones, excepto lanzar los dados y salir de la partida, requieren tarjeta:
+
+1. El jugador elige la acción (`COMPRAR_PROPIEDAD`, `NO_COMPRAR`, `PAGAR_DEUDA`, `TERMINAR_TURNO` o `CONSULTAR_TRANSACCIONES`, todas con `Datos = null`).
+2. El servidor guarda la acción como pendiente y responde solo a ese cliente con un `EVENTO`: "Acerca tu tarjeta al lector para ...".
+3. Se acerca la tarjeta al lector y el cliente con el módulo envía `TARJETA_RFID`:
+
+```json
+{
+    "Tipo": "TARJETA_RFID",
+    "Datos": { "IdTarjeta": "0A1B2C3D4E" }
+}
+```
+
+4. El servidor identifica al dueño de la tarjeta, ejecuta **su** acción pendiente y publica los cambios (`ACTUALIZAR_ESTADO`, `EVENTO`). Para `CONSULTAR_TRANSACCIONES` responde con `HISTORIAL_TRANSACCIONES` solo a ese jugador.
+
+Como la tarjeta identifica al jugador, el módulo puede estar en un solo PC y servir a todos. El saldo y las validaciones siempre están en el servidor.
+
+Errores posibles (`ERROR`): tarjeta no registrada, el dueño de la tarjeta no está conectado, el dueño no ha elegido ninguna acción, no es su turno, no tiene deuda pendiente, saldo insuficiente.
+
+### `TIRAR_DADO` (sin tarjeta)
 
 ```json
 {
@@ -771,35 +802,24 @@ Los dados los lanza el modulo fisico (Arduino). El servidor ya no genera numeros
 
 El módulo es compartido, por lo que el servidor aplica la tirada al jugador que tiene el turno. Rechaza la tirada si los valores no están entre 1 y 6, si la partida no ha iniciado, si ya se lanzaron los dados en ese turno o si la partida terminó.
 
-### `REGISTRAR_TARJETA` y `TARJETA_RFID`
+### Ejemplo: comprar una propiedad
 
-Ambos usan `DatosTarjeta`:
-
-```json
-{
-    "Tipo": "REGISTRAR_TARJETA",
-    "Datos": { "IdTarjeta": "0A1B2C3D4E", "NombreJugador": "Ana" }
-}
-```
-
-```json
-{
-    "Tipo": "TARJETA_RFID",
-    "Datos": { "IdTarjeta": "0A1B2C3D4E" }
-}
-```
-
-`TARJETA_RFID` solo usa `IdTarjeta`. La tarjeta únicamente identifica al jugador; el saldo y la validación siempre están en el servidor. Errores posibles: tarjeta no registrada, no es su turno, no tiene deuda pendiente.
-
-### Ejemplo de la sección 13
-
-En el ejemplo "tirar los dados", el paso 3 ahora es:
-
-```json
-{
-    "Tipo": "TIRAR_DADO",
-    "Datos": { "Dado1": 4, "Dado2": 6 }
-}
+```text
+Cliente                         Servidor
+   │ TIRAR_DADO {4,6}              │
+   ├──────────────────────────────►│
+   │ RESULTADO_DADO, ACTUALIZAR_ESTADO, EVENTO
+   │◄──────────────────────────────┤
+   │ OFERTA_COMPRA (solo al que cayó)
+   │◄──────────────────────────────┤
+   │ COMPRAR_PROPIEDAD             │
+   ├──────────────────────────────►│
+   │ EVENTO "Acerca tu tarjeta..." │
+   │◄──────────────────────────────┤
+   │ TARJETA_RFID {IdTarjeta}      │
+   ├──────────────────────────────►│
+   │ ACTUALIZAR_ESTADO + EVENTO    │
+   │◄──────────────────────────────┤
 ```
 
 ### Lectura serial del Arduino (cliente C#)
