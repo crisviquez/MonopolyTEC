@@ -20,6 +20,8 @@ namespace Client
         public event Action<string>? OnError;
         public event Action<DatosOfertaCompra>? OnOfertaCompra;
         public event Action? OnHistorial;
+        public event Action<DatosResultadoDado>? OnResultadoDado;
+        public event Action<int>? OnFinJuego;
 
         public Cliente()
         {
@@ -73,6 +75,11 @@ namespace Client
         public int ObtenerNumeroCasillas()
         {
             return numeroCasillas;
+        }
+
+        public int ObtenerTurnoActualId()
+        {
+            return turnoActualId;
         }
 
         public bool EstaConectado()
@@ -156,6 +163,10 @@ namespace Client
                 {
                     OnEvento(texto);
                 }
+                if (OnResultadoDado != null)
+                {
+                    OnResultadoDado(datos);
+                }
             }
             else if (mensaje.Tipo == TipoMensaje.OFERTA_COMPRA)
             {
@@ -197,6 +208,10 @@ namespace Client
                 if (OnEvento != null)
                 {
                     OnEvento(texto);
+                }
+                if (OnFinJuego != null)
+                {
+                    OnFinJuego(datos.IdGanador);
                 }
             }
         }
