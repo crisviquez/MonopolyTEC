@@ -1,8 +1,11 @@
 using System.Collections.Generic;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Network
 {
+    // Con el convertidor el JSON lleva el nombre ("CONECTAR") y no el numero del enum
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum TipoMensaje
     {
         // Cliente -> Servidor
