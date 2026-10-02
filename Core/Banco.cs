@@ -1,4 +1,3 @@
-using System;
 using Monopoly.Estructuras;
 
 public class Banco
