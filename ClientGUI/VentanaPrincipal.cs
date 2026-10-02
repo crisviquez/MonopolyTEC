@@ -11,6 +11,10 @@ namespace ClientGUI
     {
         private const int PUERTO_SERVIDOR = 5000;
 
+        // Solo para depurar sin el modulo Arduino: en true aparecen los botones de dados y tarjeta simulados.
+        // Para la defensa debe quedar en false (todo se hace con el dado y las tarjetas fisicas)
+        private static readonly bool MODO_PRUEBAS = false;
+
         private Cliente cliente;
         private DispositivoHardware? hardware;
         private Random azar;
@@ -193,11 +197,13 @@ namespace ClientGUI
             btnHistorial.Click += BotonHistorial_Click;
             btnSalir.Click += BotonSalir_Click;
 
-            // Solo aparecen si este PC no tiene el modulo
+            // Solo se muestran con MODO_PRUEBAS en true y sin modulo
             ConfigurarBoton(btnDadosSim, pJuego, "Dados (simulado)", 670, 386, 215);
             ConfigurarBoton(btnTarjetaSim, pJuego, "Tarjeta (simulada)", 895, 386, 215);
             btnDadosSim.Click += BotonDadosSim_Click;
             btnTarjetaSim.Click += BotonTarjetaSim_Click;
+            btnDadosSim.Visible = false;
+            btnTarjetaSim.Visible = false;
 
             lblAviso.Location = new Point(670, 430);
             lblAviso.Size = new Size(440, 50);
@@ -223,13 +229,13 @@ namespace ClientGUI
 
         private void MostrarPantallaJuego()
         {
-            bool sinModulo = false;
-            if (hardware == null)
+            bool mostrarSimulados = false;
+            if (MODO_PRUEBAS == true && hardware == null)
             {
-                sinModulo = true;
+                mostrarSimulados = true;
             }
-            btnDadosSim.Visible = sinModulo;
-            btnTarjetaSim.Visible = sinModulo;
+            btnDadosSim.Visible = mostrarSimulados;
+            btnTarjetaSim.Visible = mostrarSimulados;
 
             lblAviso.Text = "";
             txtEventos.Clear();
@@ -294,7 +300,7 @@ namespace ClientGUI
                 }
                 else
                 {
-                    MessageBox.Show("No se pudo abrir el puerto " + puerto + ". Se usara el modo sin modulo.");
+                    MessageBox.Show("No se pudo abrir el puerto " + puerto + ". Este PC quedara sin modulo.");
                 }
             }
 
@@ -313,8 +319,15 @@ namespace ClientGUI
 
             if (hardware == null)
             {
-                // Sin modulo: se registra una tarjeta inventada para poder probar
-                cliente.RegistrarTarjeta("SIM" + nombre, nombre);
+                if (MODO_PRUEBAS == true)
+                {
+                    // Solo en modo de pruebas: se registra una tarjeta inventada
+                    cliente.RegistrarTarjeta("SIM" + nombre, nombre);
+                }
+                else
+                {
+                    lblAviso.Text = "Este PC no tiene el modulo conectado. Reconecta indicando el puerto serial.";
+                }
                 return;
             }
 
@@ -726,7 +739,14 @@ namespace ClientGUI
             btnTarjetaSim.Enabled = iniciada;
 
             // El registro de tarjetas solo existe antes de iniciar
-            pRegistro.Visible = !iniciada;
+            if (iniciada == true)
+            {
+                pRegistro.Visible = false;
+            }
+            else
+            {
+                pRegistro.Visible = true;
+            }
         }
     }
 }

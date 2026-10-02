@@ -28,9 +28,9 @@ namespace ClientGUI
             dado1 = 0;
             dado2 = 0;
 
-            fuenteNombre = new Font("Segoe UI", 7f, FontStyle.Bold);
-            fuenteTitulo = new Font("Segoe UI", 28f, FontStyle.Bold);
-            fuenteDado = new Font("Segoe UI", 26f, FontStyle.Bold);
+            fuenteNombre = new Font("Segoe UI", 8.5f, FontStyle.Bold);
+            fuenteTitulo = new Font("Segoe UI", 42f, FontStyle.Bold);
+            fuenteDado = new Font("Segoe UI", 32f, FontStyle.Bold);
 
             formatoCentrado = new StringFormat();
             formatoCentrado.Alignment = StringAlignment.Center;
