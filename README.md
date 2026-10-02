@@ -34,19 +34,6 @@ Hardware/        Programas del Arduino
 Documentation/   Documentación
 ```
 
-## Documentación
-
-| Documento | Contenido |
-|---|---|
-| [Manual.md](Documentation/Manual.md) | Cómo ejecutar el proyecto |
-| [Protocolo.md](Documentation/Protocolo.md) | Protocolo cliente-servidor |
-| [Estructuras.md](Documentation/Estructuras.md) | Estructuras de datos utilizadas |
-| [UML.md](Documentation/UML.md) | Diagramas de clases |
-| [Hardware.md](Documentation/Hardware.md) | Código y conexión del módulo electrónico |
-| [Cliente.md](Documentation/Cliente.md) | Uso de la clase `Cliente` |
-| [ClientTCP.md](Documentation/ClientTCP.md) | Funcionamiento de `ClienteTcp` |
-| [Defensa.md](Documentation/Defensa.md) | Guion y checklist de la defensa |
-
 ## Inicio rápido
 
 ```text
