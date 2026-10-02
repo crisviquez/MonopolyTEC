@@ -32,9 +32,9 @@ class Program
 
     static void Main()
     {
-        // =========================
+    
         // JUGADORES DISPONIBLES
-        // =========================
+        
 
         Jugador p1 = new Jugador(
             1,
@@ -73,9 +73,9 @@ class Program
         jugadoresDisponibles.Add(p4);
 
 
-        // =========================
+    
         // ORDEN DE LOS TURNOS
-        // =========================
+   
 
         List<Jugador> ordenTurnos = new List<Jugador>();
 
@@ -86,9 +86,9 @@ class Program
         Jugador? jugadorActual = null;
 
 
-        // =========================
+     
         // ARDUINO
-        // =========================
+       
 
         SerialPort arduino = new SerialPort("COM8", 9600);
 
@@ -116,9 +116,9 @@ class Program
                 Console.WriteLine("Arduino: " + mensaje);
 
 
-                // ==================================================
+                
                 // RFID
-                // ==================================================
+                
 
                 if (mensaje.StartsWith("RFID:"))
                 {
@@ -135,9 +135,9 @@ class Program
                             BuscarJugador(jugadoresDisponibles, idRFID);
 
 
-                        // ------------------------------------------
+                        
                         // TARJETA DESCONOCIDA
-                        // ------------------------------------------
+                        
 
                         if (jugadorEncontrado == null)
                         {
@@ -149,10 +149,9 @@ class Program
                         }
 
 
-                        // ------------------------------------------
+                        
                         // TODAVÍA NO HAY JUGADORES
-                        // ------------------------------------------
-
+                        
                         if (ordenTurnos.Count == 0)
                         {
                             ordenTurnos.Add(jugadorEncontrado);
@@ -174,9 +173,9 @@ class Program
                         }
 
 
-                        // ------------------------------------------
+                        
                         // ¿ES LA PRIMERA TARJETA OTRA VEZ?
-                        // ------------------------------------------
+                        
 
                         if (idRFID == ordenTurnos[0].RFID)
                         {
@@ -193,9 +192,9 @@ class Program
                             }
 
 
-                            // ======================================
+                            
                             // COMIENZA LA PARTIDA
-                            // ======================================
+                            
 
                             partidaIniciada = true;
 
@@ -246,9 +245,9 @@ class Program
                         }
 
 
-                        // ------------------------------------------
+                        
                         // ¿YA HABÍA SIDO REGISTRADO?
-                        // ------------------------------------------
+                        
 
                         if (ordenTurnos.Contains(jugadorEncontrado))
                         {
@@ -267,9 +266,9 @@ class Program
                         }
 
 
-                        // ------------------------------------------
+                        
                         // NUEVO JUGADOR
-                        // ------------------------------------------
+                        
 
                         ordenTurnos.Add(jugadorEncontrado);
 
@@ -291,9 +290,9 @@ class Program
                     }
 
 
-                    // ==================================================
+                    
                     // PARTIDA YA INICIADA
-                    // ==================================================
+                    
 
                     if (partidaIniciada)
                     {
@@ -301,9 +300,9 @@ class Program
                             BuscarJugador(jugadoresDisponibles, idRFID);
 
 
-                        // ------------------------------------------
+                        
                         // TARJETA DESCONOCIDA
-                        // ------------------------------------------
+                        
 
                         if (jugadorConTarjeta == null)
                         {
@@ -318,9 +317,9 @@ class Program
                         }
 
 
-                        // ------------------------------------------
+                        
                         // VERIFICAR TURNO
-                        // ------------------------------------------
+                        
 
                         if (jugadorConTarjeta != jugadorActual)
                         {
@@ -344,9 +343,9 @@ class Program
                         }
 
 
-                        // ------------------------------------------
+                        
                         // TARJETA CORRECTA
-                        // ------------------------------------------
+                        
 
                         Console.WriteLine();
 
@@ -364,15 +363,15 @@ class Program
                 }
 
 
-                // ==================================================
+                
                 // DADOS
-                // ==================================================
+                
 
                 if (mensaje.StartsWith("DADOS:"))
                 {
-                    // ------------------------------------------
+                    
                     // LA PARTIDA TODAVÍA NO EMPIEZA
-                    // ------------------------------------------
+                    
 
                     if (!partidaIniciada)
                     {
@@ -387,9 +386,9 @@ class Program
                     }
 
 
-                    // ------------------------------------------
+                    
                     // NO HAY JUGADOR ACTUAL
-                    // ------------------------------------------
+                    
 
                     if (jugadorActual == null)
                     {
@@ -404,9 +403,9 @@ class Program
                     }
 
 
-                    // ------------------------------------------
+                    
                     // LEER DADOS
-                    // ------------------------------------------
+                    
 
                     string datos = mensaje.Substring(6);
 
@@ -442,9 +441,9 @@ class Program
                     int suma = dado1 + dado2;
 
 
-                    // ==================================================
+                    
                     // MOVIMIENTO
-                    // ==================================================
+                    
 
                     int posicionAnterior =
                         jugadorActual.Posicion;
@@ -453,25 +452,25 @@ class Program
                         posicionAnterior + suma;
 
 
-                    // ==================================================
+                    
                     // VERIFICAR SI PASÓ POR SALIDA
-                    // ==================================================
+                    
 
                     bool pasoPorSalida =
                         posicionNueva >= MAX_CASILLAS;
 
 
-                    // ==================================================
+                    
                     // CONVERTIR A POSICIÓN CIRCULAR
-                    // ==================================================
+                    
 
                     jugadorActual.Posicion =
                         posicionNueva % MAX_CASILLAS;
 
 
-                    // ==================================================
+                    
                     // DAR LOS ₡200
-                    // ==================================================
+                    
 
                     if (pasoPorSalida)
                     {
@@ -493,10 +492,9 @@ class Program
                     }
 
 
-                    // ==================================================
+                    
                     // MOSTRAR RESULTADO
-                    // ==================================================
-
+                   
                     Console.WriteLine();
 
                     Console.WriteLine(
@@ -547,13 +545,9 @@ class Program
                     Console.WriteLine();
 
 
-                    // ==================================================
+                    
                     // CAMBIAR DE TURNO
-                    // ==================================================
-
-                    // IMPORTANTE:
-                    // NO HAY TURNO EXTRA POR DOBLES.
-                    // Siempre pasa al siguiente jugador.
+                    
 
                     indiceTurno++;
 
@@ -620,9 +614,9 @@ class Program
     }
 
 
-    // ==========================================================
+    
     // BUSCAR JUGADOR POR RFID
-    // ==========================================================
+  
 
     static Jugador? BuscarJugador(
         List<Jugador> jugadores,
