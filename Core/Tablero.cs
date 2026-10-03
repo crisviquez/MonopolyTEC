@@ -19,7 +19,7 @@ public class Tablero
         }
     }
 
-        private Propiedad CrearPropiedad(int id, string nombre, string color, int precio)
+    private Propiedad CrearPropiedad(int id, string nombre, string color, int precio)
     {
         return new Propiedad(id, nombre, color, precio, precio / 10);
     }

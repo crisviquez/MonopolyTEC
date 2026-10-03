@@ -5,7 +5,7 @@ public class Juego
     public const int MAX_JUGADORES = 4;
     public const int MAX_TURNOS_POR_DEFECTO = 60;
     public const int IMPUESTO = 100;
-        public const int MINIMO_CASILLAS = 40;
+    public const int MINIMO_CASILLAS = 40;
     public const int POSICION_CARCEL = 10;
     public const int TURNOS_EN_CARCEL = 1;
 
@@ -428,7 +428,7 @@ public class Juego
 
     // ---------- Metodos que llaman las casillas desde Ejecutar ----------
 
-        public void OfrecerPropiedad(Jugador jugador, Propiedad propiedad)
+    public void OfrecerPropiedad(Jugador jugador, Propiedad propiedad)
     {
         ofertaPendiente = propiedad;
         AgregarEvento(jugador.Nombre + " cayo en " + propiedad.Nombre + " (" + propiedad.Color + "), esta libre por " + propiedad.Precio);

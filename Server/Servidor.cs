@@ -67,7 +67,7 @@ namespace Server
         }
 
         // Lo llama el organizador desde la consola (o solo cuando se conectan 4)
-                public bool IniciarPartida()
+        public bool IniciarPartida()
         {
             lock (candado)
             {
@@ -300,7 +300,7 @@ namespace Server
             }
         }
 
-                private void ManejarRegistrarTarjeta(ClienteConectado cliente, Mensaje mensaje)
+        private void ManejarRegistrarTarjeta(ClienteConectado cliente, Mensaje mensaje)
         {
             DatosTarjeta? datos = mensaje.LeerDatos<DatosTarjeta>();
             if (datos == null)
